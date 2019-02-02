@@ -2,7 +2,7 @@
 |#
 (module
  agidel-plugin.c
- (_agidel-arity
+ (_agidel-arities
   + - * / % ; arithmetical operators
   inc inc* dec dec* ; -- ++
   )
@@ -14,16 +14,10 @@
          (prefix (clojurian syntax) -)
          format)
 
- ;; Special alist with arities of functions exported. If function accepts any
- ;; number of arguments, do not list it here.
- (define _agidel-arity
-   '((inc . 1) (inc* . 1) (dec . 1) (dec* . 1)
-     (left-shift . 2) (right-shift . 2)
-     (not . 1) (compl . 1)
-     (if . 3) (unless . 3) (if* . 3) (unless . 3)
-     (get . 2) (ptr . 1) (ref . 1) 
-     (break . 0) (continue . 0) (return . 1) (goto . 1)
-     (size-of . 1) (align-of . 1) (type-case . 2)))
+ ;; By default, all the arguments get ævaled. You can override it here. Write q
+ ;; to quote an arg, and e to æval it. Point represents rest-arg.
+ (define _agidel-arities
+   '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)))
 
  (define (as-is x) x)
  
@@ -34,22 +28,24 @@
     [else (format "(~A)" (-string-join operands operator 'infix))]))
 
  ;;; Arithmetical operators
- (define (+ . operands)
-   (prefix->infix-operator operands " + " "0" as-is))
- (define (- . operands)
-   (prefix->infix-operator operands " - " "0"
+ (define (+ . os) (prefix->infix-operator os " + " "0" as-is))
+ (define (- . os)
+   (prefix->infix-operator os " - " "0"
                            (lambda (o) (format "-(~A)" o))))
- (define (* . operands)
-   (prefix->infix-operator operands " * " "1"
+ (define (* . os)
+   (prefix->infix-operator os " * " "1"
                            (lambda (o) (format "*~A" o))))
- (define (/ . operands)
-   (prefix->infix-operator operands " / " "1" as-is))
- (define (% . operands)
-   (prefix->infix-operator operands " % " "1" as-is))
+ (define (/ . os) (prefix->infix-operator os " / " "1" as-is))
+ (define (% . os) (prefix->infix-operator os " % " "1" as-is))
 
- ;;; n++ n-- --n ++n
+ ;;; Incrementors and decrementors
  (define (inc o) (format "++(~A)" o))
  (define (inc* o) (format "(~A)++" o))
  (define (dec o) (format "--(~A)" o))
  (define (dec* o) (format "(~A)--"))
+
+ ;;; Logic operators
+ (define (or . os) (prefix->infix-operator os " || " "true" as-is))
+ (define (and . os) (prefix->infix-operator os " && " "false" as-is))
+ (define (not o) (format "!(~A)" o))
  )
