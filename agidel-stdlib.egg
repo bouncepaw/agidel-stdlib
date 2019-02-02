@@ -1,0 +1,7 @@
+((author "Timur Ismagilov")
+ (synopsis "Standard plugins for Agidel.")
+ (category uncategorized)
+ (license "MIT")
+ (components
+   (extension agidel-plugin.c (source "c.scm"))
+   ))
