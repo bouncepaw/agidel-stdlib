@@ -9,9 +9,10 @@
  ;;(+ - / * % or and not bitor bitand compl left-shift right-shift
  ;;  set defvar defconst defun
  ;; _bracket _brace)
- (import (rename (prefix scheme -) (-define define) (-lambda lambda))
+ (import (rename (prefix scheme -) (-define define) (-lambda lambda) (-let* let*))
          (prefix (chicken base) -)
          (prefix (clojurian syntax) -)
+         (prefix (srfi-1) -)
          format)
 
  ;; By default, all the arguments get ævaled. You can override it here. Write q
@@ -20,7 +21,7 @@
    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)))
 
  (define (as-is x) x)
- 
+
  (define (prefix->infix-operator operands operator default-value one-operandλ)
    (-cond
     [(-null? operands) default-value]
@@ -56,4 +57,27 @@
  (define (compl o) (format "~~(~A)" o))
  (define (left-shift val shift) (format "(~A << ~A)" val shift))
  (define (right-shift val shift) (format "(~A >> ~A)" val shift))
+
+
+ (define (comparison-prefix->infix-operator os operator)
+   (-cond
+    [(< (-length os) 2)
+     (format #t "Operator ~A: arity error" operator)
+     (-exit 1)]
+    [else
+     (let* ((curr-os (-take os 2))
+            (rest-os (-drop os 2))
+            (res (format "(~A ~A ~A)" (car curr-os) operator (cadr curr-os))))
+       (if (-null? rest-os)
+           res
+           (and res (comparison-prefix->infix-operator rest-os operator))))]))
+ ;;; Comparison operators
+ (define (eq? . os) (comparison-prefix->infix-operator os " == "))
+ (define (neq? . os) (comparison-prefix->infix-operator os " != "))
+ (define (< . os) (comparison-prefix->infix-operator os " < "))
+ (define (> . os) (comparison-prefix->infix-operator os " > "))
+ (define (<= . os) (comparison-prefix->infix-operator os " <= "))
+ (define (=> . os) (comparison-prefix->infix-operator os " => "))
+ 
+ 
  )
