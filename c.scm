@@ -48,4 +48,12 @@
  (define (or . os) (prefix->infix-operator os " || " "true" as-is))
  (define (and . os) (prefix->infix-operator os " && " "false" as-is))
  (define (not o) (format "!(~A)" o))
+
+ ;;; Bitwise operators
+ (define (bitor . os) (prefix->infix-operator os " | " "1" as-is))
+ (define (bitand . os) (prefix->infix-operator os " & " "0" as-is))
+ (define (xor . os) (prefix->infix-operator os " ^ " "0" as-is))
+ (define (compl o) (format "~~(~A)" o))
+ (define (left-shift val shift) (format "(~A << ~A)" val shift))
+ (define (right-shift val shift) (format "(~A >> ~A)" val shift))
  )
