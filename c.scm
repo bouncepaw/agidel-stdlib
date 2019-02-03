@@ -5,6 +5,9 @@
  (_agidel-arities
   + - * / % ; arithmetical operators
   inc inc* dec dec* ; -- ++
+  or and not ; logic operators
+  bitor bitand xor compl left-shift right-shift ; bitwise operators
+  eq? neq? < > <= => ; comparison operators
   )
  ;;(+ - / * % or and not bitor bitand compl left-shift right-shift
  ;;  set defvar defconst defun
