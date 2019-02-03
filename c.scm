@@ -20,8 +20,10 @@
  (define _agidel-arities
    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)))
 
+ ;; Unary function that just returns its operand.
  (define (as-is x) x)
 
+ ;; Function to make creation of operators easier.
  (define (prefix->infix-operator operands operator default-value one-operandλ)
    (-cond
     [(-null? operands) default-value]
@@ -43,7 +45,7 @@
  (define (inc o) (format "++(~A)" o))
  (define (inc* o) (format "(~A)++" o))
  (define (dec o) (format "--(~A)" o))
- (define (dec* o) (format "(~A)--"))
+ (define (dec* o) (format "(~A)--" o))
 
  ;;; Logic operators
  (define (or . os) (prefix->infix-operator os " || " "true" as-is))
