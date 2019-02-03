@@ -9,9 +9,6 @@
   bitor bitand xor compl left-shift right-shift ; bitwise operators
   eq? neq? < > <= => ; comparison operators
   )
- ;;(+ - / * % or and not bitor bitand compl left-shift right-shift
- ;;  set defvar defconst defun
- ;; _bracket _brace)
  (import (rename (prefix scheme -) (-define define) (-lambda lambda) (-let* let*))
          (prefix (chicken base) -)
          (prefix (clojurian syntax) -)
@@ -82,5 +79,12 @@
  (define (<= . os) (comparison-prefix->infix-operator os " <= "))
  (define (=> . os) (comparison-prefix->infix-operator os " => "))
  
- 
+
+ ;;; C preprocessor
+ (define (import . os)
+   (for-each (lambda (o)
+               (if (or (-string-prefix? "<") (-string-prefix? "\""))
+                   (format "#include ~A\n" o)
+                   (format "#include <~A>\n" o)))
+             os))
  )
