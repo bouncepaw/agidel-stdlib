@@ -2,17 +2,18 @@
 |#
 (module
  agidel-plugin.c
- (_agidel-arities
+ (_agidel-arities)
+ #|(_agidel-arities
   + - * / % ; arithmetical operators
   inc inc* dec dec* ; -- ++
   or and not ; logic operators
   bitor bitand xor compl left-shift right-shift ; bitwise operators
   eq? neq? < > <= => ; comparison operators
-  )
- (import (rename (prefix scheme -) (-define define) (-lambda lambda) (-let* let*))
-         (prefix (chicken base) -)
-         (prefix (clojurian syntax) -)
-         (prefix (srfi-1) -)
+  )|#
+ (import scheme
+         (chicken base)
+         (clojurian syntax)
+         (srfi 1)
          format)
 
  ;; By default, all the arguments get ævaled. You can override it here. Write q
@@ -20,6 +21,7 @@
  (define _agidel-arities
    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)))
 
+ #|
  ;; Unary function that just returns its operand.
  (define (as-is x) x)
 
@@ -88,5 +90,5 @@
                (if (or (-string-prefix? "<") (-string-prefix? "\""))
                    (format "#include ~A\n" o)
                    (format "#include <~A>\n" o)))
-             os))
+             os)) |#
  )
