@@ -14,12 +14,14 @@
          (chicken base)
          (clojurian syntax)
          (srfi 1)
-         format)
+         format
+         (srfi 69))
 
  ;; By default, all the arguments get ævaled. You can override it here. Write q
  ;; to quote an arg, and e to æval it. Point represents rest-arg.
  (define _agidel-arities
-   '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)))
+   (alist->hash-table
+    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q))))
 
  #|
  ;; Unary function that just returns its operand.
