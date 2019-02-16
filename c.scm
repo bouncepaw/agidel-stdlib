@@ -2,7 +2,7 @@
 |#
 (module
  agidel-plugin.c
- (_agidel-arities)
+ (_agidel-arities _bracket _brace)
  #|(_agidel-arities
   + - * / % ; arithmetical operators
   inc inc* dec dec* ; -- ++
@@ -14,6 +14,7 @@
          (chicken base)
          (clojurian syntax)
          (srfi 1)
+         (srfi 13)
          format
          (srfi 69))
 
@@ -21,8 +22,22 @@
  ;; to quote an arg, and e to æval it. Point represents rest-arg.
  (define _agidel-arities
    (alist->hash-table
-    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q))))
+    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)
+      (_bracket . e) (_brace q))))
 
+ ;; Brackets in Agidel/c are used to call C functions. Like that:
+ ;; [printf "hello %s" "world"] → printf("hello %s", world);
+ (define (_bracket . os)
+   (define should-semicolon? #t)
+   (format "printf(~A)~A"
+           (string-join os ", " 'infix)
+           (if should-semicolon? ";\n" "")))
+
+ ;; Braces are used to insert literal text.
+ ;; {foo bar} → foo bar
+ (define (_brace o)
+   o)
+ 
  #|
  ;; Unary function that just returns its operand.
  (define (as-is x) x)
