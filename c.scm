@@ -29,8 +29,9 @@
  ;; [printf "hello %s" "world"] → printf("hello %s", world);
  (define (_bracket . os)
    (define should-semicolon? #t)
-   (format "printf(~A)~A"
-           (string-join os ", " 'infix)
+   (format "~A(~A)~A"
+           (car os)
+           (string-join (cdr os) ", " 'infix)
            (if should-semicolon? ";\n" "")))
 
  ;; Braces are used to insert literal text.
