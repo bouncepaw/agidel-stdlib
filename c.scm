@@ -9,6 +9,7 @@
   /or /and /not ; logic operators
   /bitor /bitand /xor /compl /left-shift /right-shift ; bitwise operators
   /eq? /neq? /< /> /<= /=> ; comparison operators
+  /import
   )
  (import scheme
          (chicken base)
@@ -29,7 +30,8 @@
            (or . e) (and . e) (not e)
            (bitor . e) (bitand . e) (xor . e) (compl e)
            (left-shift e e) (right-shift e e)
-           (eq? . e) (neq? . e) (< . e) (> . e) (<= . e) (=> . e)))))
+           (eq? . e) (neq? . e) (< . e) (> . e) (<= . e) (=> . e)
+           (import . q)))))
 
  ;; Brackets in Agidel/c are used to call C functions. Like that:
  ;; [printf "hello %s" "world"] → printf("hello %s", world);
