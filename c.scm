@@ -37,7 +37,7 @@
  ;; Braces are used to insert literal text.
  ;; {foo bar} → foo bar
  (define (_brace o)
-   o)
+   (substring o 1 (- (string-length 0) 1)))
  
  #|
  ;; Unary function that just returns its operand.
