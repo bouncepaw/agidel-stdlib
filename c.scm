@@ -22,8 +22,14 @@
  ;; to quote an arg, and e to æval it. Point represents rest-arg.
  (define _agidel-arities
    (alist->hash-table
-    '((defvar . q) (defun q q . e) (struct e . q) (enum e . q) (union e . q)
-      (_bracket . e) (_brace q))))
+    (map (lambda (pair) (cons (symbol-append '/ (car pair)) (cdr pair)))
+         '((_bracket . e) (_brace q)
+           (+ . e) (- . e) (* . e) (/ . e) (% . e)
+           (inc e) (inc* e) (dec e) (dec* e)
+           (or . e) (and . e) (not e)
+           (bitor . e) (bitand . e) (xor . e) (compl e)
+           (left-shift e e) (right-shift e e)
+           (eq? . e) (neq? . e) (< . e) (> . e) (<= . e) (=> . e)))))
 
  ;; Brackets in Agidel/c are used to call C functions. Like that:
  ;; [printf "hello %s" "world"] → printf("hello %s", world);
