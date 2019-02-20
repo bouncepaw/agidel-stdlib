@@ -18,4 +18,4 @@
           (-string-join exprs " "))
 
  (-define (echo . exprs)
-          (apply call "echo" exprs)))
+          (-apply call "echo" exprs)))
