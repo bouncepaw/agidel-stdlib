@@ -103,4 +103,14 @@
   or
   (syntax-rules ()
     ((_ o o* ...) (-apply prefix->infix " || " (str (list o o* ...))))))
+
+ (-define-syntax
+  import
+  (syntax-rules ()
+    ((_ o ...) (-string-append
+                (-map
+                 (-lambda (f)
+                          (-if (-string? f)
+                               (format "#include ~A\n" f)
+                               (format "#include <~A>\n" f))))))))
  )
