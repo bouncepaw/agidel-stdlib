@@ -73,4 +73,34 @@
     ((_) (-error "Agidel: given no args to xor"))
     ((_ o) (str o))
     ((_ o ...) (-apply prefix->infix " ^ " (str (list o ...))))))
+
+ (-define-syntax
+  compl
+  (syntax-rules ()
+    ((_ o) (format "~~(~A)" (str o)))))
+
+ (-define-syntax
+  left-shift
+  (syntax-rules ()
+    ((_ val sft) (format "~A << ~A" val sft))))
+
+ (-define-syntax
+  right-shift
+  (syntax-rules ()
+    ((_ val sft) (format "~A >> ~A" val sft))))
+
+ (-define-syntax
+  not
+  (syntax-rules ()
+    ((_ o) (format "~(~A)" (str o)))))
+
+ (-define-syntax
+  and
+  (syntax-rules ()
+    ((_ o o* ...) (-apply prefix->infix " && " (str (list o o* ...))))))
+
+ (-define-syntax
+  or
+  (syntax-rules ()
+    ((_ o o* ...) (-apply prefix->infix " || " (str (list o o* ...))))))
  )
