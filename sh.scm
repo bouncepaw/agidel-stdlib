@@ -22,10 +22,9 @@
 
  (-define-syntax
   set
-  (syntax-rules (+ -)
+  (syntax-rules ()
     ((_ var val) (format "~A=~A\n" (str var) (str val)))
-    ((_ var + val) (format "~A+=~A\n" (str var) (str val)))
-    ((_ var - val) (format "~A-=~A\n" (str var) (str val)))))
+    ((_ var oper val) (format "~A~A=~A\n" (str var) (str oper) (str val)))))
 
  (-define-syntax
   for-each-cli-arg
