@@ -53,4 +53,24 @@
     ((_ o) (-number->string (-exact->inexact (-/ o 100))))
     ((_ o ...) (-apply prefix->infix " % " (str (list o ...))))))
 
+ (-define-syntax
+  bitor
+  (syntax-rules ()
+    ((_) (-error "Agidel: given no args to bitor"))
+    ((_ o) (str o))
+    ((_ o ...) (-apply prefix->infix " | " (str (list o ...))))))
+
+ (-define-syntax
+  bitand
+  (syntax-rules ()
+    ((_) (-error "Agidel: given no args to bitand"))
+    ((_ o) (str o))
+    ((_ o ...) (-apply prefix->infix " & " (str (list o ...))))))
+
+ (-define-syntax
+  xor
+  (syntax-rules ()
+    ((_) (-error "Agidel: given no args to xor"))
+    ((_ o) (str o))
+    ((_ o ...) (-apply prefix->infix " ^ " (str (list o ...))))))
  )
