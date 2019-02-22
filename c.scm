@@ -107,7 +107,8 @@
  (-define-syntax
   import
   (syntax-rules ()
-    ((_ o ...) (-string-append
+    ((_ o ...) (-apply
+                -string-append
                 (-map
                  (-lambda (f)
                           (-if (-string? f)
