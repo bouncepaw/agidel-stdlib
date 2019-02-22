@@ -112,5 +112,6 @@
                  (-lambda (f)
                           (-if (-string? f)
                                (format "#include ~A\n" f)
-                               (format "#include <~A>\n" f))))))))
+                               (format "#include <~A>\n" f)))
+                 (list o ...))))))
  )
