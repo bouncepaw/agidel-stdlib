@@ -239,13 +239,13 @@
   if
   (syntax-rules ()
     ((_ test thenc elsec)
-     (format "if (~A) ~A else ~A" test thenc elsec))))
+     (format "if (~A) ~A else ~A" (eval-maybe test) thenc elsec))))
 
  (-define-syntax
   unless
   (syntax-rules ()
     ((_ test thenc elsec)
-     (format "if (!(~A)) ~A else ~A" test thenc elsec))))
+     (format "if (!(~A)) ~A else ~A" (eval-maybe test) thenc elsec))))
 
  (-define-syntax
   begin
