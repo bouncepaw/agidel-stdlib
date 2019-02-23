@@ -35,4 +35,4 @@
  (-define-syntax
   _bracket
   (syntax-rules ()
-    ((_ expr* ...) (format "~A\n" (-string-join (str (-list expr* ...)) " "))))))
+    ((_ expr* ...) (format "~A\n" (-string-join (str (-list 'expr* ...)) " "))))))
