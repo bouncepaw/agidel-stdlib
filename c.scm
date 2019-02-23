@@ -9,6 +9,7 @@
 
  (-define (eval-maybe o)
           (-if (-list? o) (-eval o) o))
+
  (-define-syntax
   str
   (syntax-rules (!!)
@@ -109,7 +110,7 @@
  (-define-syntax
   not
   (syntax-rules ()
-    ((_ o) (format "~(~A)" (eval-maybe 'o)))))
+    ((_ o) (format "!(~A)" (eval-maybe 'o)))))
 
  (-define-syntax
   and
@@ -239,17 +240,31 @@
   if
   (syntax-rules ()
     ((_ test thenc elsec)
-     (format "if (~A) ~A else ~A" (eval-maybe test) thenc elsec))))
+     (format "if (~A) ~A else ~A" (eval-maybe 'test) thenc elsec))))
 
  (-define-syntax
   unless
   (syntax-rules ()
     ((_ test thenc elsec)
-     (format "if (!(~A)) ~A else ~A" (eval-maybe test) thenc elsec))))
+     (if (not test) thenc elsec))))
 
  (-define-syntax
   begin
   (syntax-rules ()
     ((_ expr ...)
      (format "{\n~A}\n" (string-append expr ...)))))
+
+ (-define-syntax
+  while
+  (syntax-rules ()
+    ((_ test expr ...)
+     (format "while (~A) ~A"
+             (-if (-symbol? 'test) 'test test)
+             (begin expr ...)))))
+
+ (-define-syntax
+  until
+  (syntax-rules (not)
+    ((_ test expr ...)
+     (while (not test) expr ...))))
  )
