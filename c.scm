@@ -185,6 +185,8 @@
                    arguments
                    (-string-append expr ...))))))
 
+ (-define (semicolon-maybe)
+          ";\n")
  (-define-syntax
   pragma
   (syntax-rules ()
@@ -194,4 +196,9 @@
              (-string-join (-map ->string (-list dir dir* ...))
                            " " 'infix)
              "\n"))))
+
+ (-define-syntax
+  return
+  (syntax-rules ()
+    (_ o) (format "return ~A~A" (eval-maybe o) (semicolon-maybe))))
  )
