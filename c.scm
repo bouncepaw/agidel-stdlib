@@ -11,7 +11,8 @@
           (-if (-list? o) (-eval o) o))
  (-define-syntax
   str
-  (syntax-rules ()
+  (syntax-rules (!!)
+    ((_ !! lst) (-map -->string lst))
     ((_ elt) (-cond
               ((-string? 'elt) (-string-append "\"" 'elt "\""))
               ((-list? 'elt) (-map -->string 'elt))
@@ -32,6 +33,12 @@
                                   (else (-->string o)))))
               (evaled   (-map evalλ operands)))
              (-string-join evaled 'operator 'infix))))))
+ (-define-syntax
+  join-with-space
+  (syntax-rules ()
+    ((_) "")
+    ((_ o* ...) (-string-join (str !! (-map eval-maybe (-list 'o* ...)))
+                              " " 'infix))))
  (-define-syntax
   +
   (syntax-rules ()
@@ -208,10 +215,18 @@
     ((_ fun arg ...)
      (format "~A(~A)~A"
              'fun
-             (-string-join (-map ->string
+             (-string-join (-map -->string
                                  (-map eval-maybe
-                                       (-list arg ...)))
+                                       (-list 'arg ...)))
                            ", "
                            'infix)
              (semicolon-maybe)))))
+
+ (-define-syntax
+  deftype
+  (syntax-rules ()
+    ((_ name type type* ...)
+     (format "typedef ~A ~A;"
+             (join-with-space type type* ...)
+             'name))))
  )
