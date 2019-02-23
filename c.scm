@@ -234,4 +234,16 @@
   _brace
   (syntax-rules ()
     ((_ str) str)))
+
+ (-define-syntax
+  if
+  (syntax-rules ()
+    ((_ test thenc elsec)
+     (format "if (~A) ~A else ~A" test thenc elsec))))
+
+ (-define-syntax
+  unless
+  (syntax-rules ()
+    ((_ test thenc elsec)
+     (format "if (!(~A)) ~A else ~A" test thenc elsec))))
  )
