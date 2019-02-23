@@ -246,4 +246,10 @@
   (syntax-rules ()
     ((_ test thenc elsec)
      (format "if (!(~A)) ~A else ~A" test thenc elsec))))
+
+ (-define-syntax
+  begin
+  (syntax-rules ()
+    ((_ expr ...)
+     (format "{\n~A}\n" (string-append expr ...)))))
  )
