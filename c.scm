@@ -184,4 +184,14 @@
                    signature
                    arguments
                    (-string-append expr ...))))))
+
+ (-define-syntax
+  pragma
+  (syntax-rules ()
+    ((_ dir dir* ...)
+     (-apply -string-append
+             "#pragma "
+             (-string-join (-map ->string (-list dir dir* ...))
+                           " " 'infix)
+             "\n"))))
  )
