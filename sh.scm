@@ -23,19 +23,16 @@
  (-define-syntax
   set
   (syntax-rules ()
-    ((_ var val) (format "~A=~A\n" (str var) (str val)))
-    ((_ var oper val) (format "~A~A=~A\n" (str var) (str oper) (str val)))))
+    ((_ var val) (format "~A=~A\n" (str 'var) (str 'val)))
+    ((_ var oper val) (format "~A~A=~A\n" (str 'var) (str 'oper) (str 'val)))))
 
  (-define-syntax
   for-each-cli-arg
   (syntax-rules ()
-    ((_ var expr) (format "for ~A in \"$@\"; do\n~A\ndone\n"
-                             var
-                             expr))
-    ((_ var exprs ...) (format "for ~A in \"$@\"; do\n~A\ndone\n"
-                             var
-                             (-apply -string-append (-list exprs ...))))))
+    ((_ var expr* ...) (format "for ~A in \"$@\"; do\n~A\ndone\n"
+                             'var
+                             (-apply -string-append (-list expr* ...))))))
  (-define-syntax
   _bracket
   (syntax-rules ()
-    ((_ exprs ...) (format "~A\n" (-string-join (str (-list exprs ...)) " "))))))
+    ((_ expr* ...) (format "~A\n" (-string-join (str (-list expr* ...)) " "))))))
