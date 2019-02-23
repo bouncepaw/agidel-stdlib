@@ -207,7 +207,7 @@
  (-define-syntax
   return
   (syntax-rules ()
-    ((_ o) (format "return ~A~A" (eval-maybe o) (semicolon-maybe)))))
+    ((_ o) (format "return ~A~A" (eval-maybe 'o) (semicolon-maybe)))))
 
  (-define-syntax
   _bracket
@@ -229,4 +229,9 @@
      (format "typedef ~A ~A;"
              (join-with-space type type* ...)
              'name))))
+
+ (-define-syntax
+  _brace
+  (syntax-rules ()
+    ((_ str) str)))
  )
