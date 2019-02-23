@@ -7,112 +7,122 @@
          (prefix srfi-13 -)
          format)
 
- (-define (str lst)
-          (-if (-list? lst)
-               (-map (-lambda (x) (-if (-string? x)
-                                       (-string-append "\"" x "\"")
-                                       (-->string x)))
-                     lst)
-               (-car (str (-list lst)))))
+ (-define (eval-maybe o)
+          (-if (-list? o) (-eval o) o))
+ (-define-syntax
+  str
+  (syntax-rules ()
+    ((_ elt) (-cond
+              ((-string? 'elt) (-string-append "\"" 'elt "\""))
+              ((-list? 'elt) (-map -->string 'elt))
+              (else (-->string 'elt))))
+    ((_ elt elt* ...) (str (-eval (-list elt elt* ...))))))
 
- (-define (prefix->infix operator . operands)
-          (format "(~A)" (-string-join operands operator (-quote infix))))
-
+ (-define-syntax
+  prefix->infix
+  (syntax-rules ()
+    ((_ operator operand operand* ...)
+     (format
+      "(~A)"
+      (-let* ((operands (-list 'operand 'operand* ...))
+              (evalλ    (-lambda (o)
+                                 (-cond
+                                  ((-list? o) (-eval o))
+                                  ((-string? o) (-string-append "\"" o "\""))
+                                  (else (-->string o)))))
+              (evaled   (-map evalλ operands)))
+             (-string-join evaled 'operator 'infix))))))
  (-define-syntax
   +
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to +"))
-    ((_ o) (format "+~A" o))
-    ((_ o ...) (-apply prefix->infix " + " (str (list o ...))))))
+    ((_ o) (format "+~A" 'o))
+    ((_ o o* ...) (prefix->infix " + " o o* ...))))
 
  (-define-syntax
   -
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to -"))
     ((_ o) (format "-(~A)" o))
-    ((_ o ...) (-apply prefix->infix " - " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " - " o o* ...))))
 
  (-define-syntax
   /
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to /"))
     ((_ o) (format "(1/~A)" o))
-    ((_ o ...) (-apply prefix->infix " / " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " / " o o* ...))))
 
  (-define-syntax
   *
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to *"))
     ((_ o) (format "*~A" o))
-    ((_ o ...) (-apply prefix->infix " * " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " * " o o* ...))))
 
  (-define-syntax
   %
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to %"))
     ((_ o) (-number->string (-exact->inexact (-/ o 100))))
-    ((_ o ...) (-apply prefix->infix " % " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " % " o o* ...))))
 
  (-define-syntax
   bitor
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to bitor"))
     ((_ o) (str o))
-    ((_ o ...) (-apply prefix->infix " | " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " | " o o* ...))))
 
  (-define-syntax
   bitand
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to bitand"))
     ((_ o) (str o))
-    ((_ o ...) (-apply prefix->infix " & " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " & " o o* ...))))
 
  (-define-syntax
   xor
   (syntax-rules ()
-    ((_) (-error "Agidel: given no args to xor"))
     ((_ o) (str o))
-    ((_ o ...) (-apply prefix->infix " ^ " (str (list o ...))))))
+    ((_ o o* ...) (prefix->infix " ^ " o o* ...))))
 
  (-define-syntax
   compl
   (syntax-rules ()
-    ((_ o) (format "~~(~A)" (str o)))))
+    ((_ o) (format "~~(~A)" (eval-maybe o)))))
 
  (-define-syntax
   left-shift
   (syntax-rules ()
-    ((_ val sft) (format "~A << ~A" val sft))))
+    ((_ val sft) (format "~A << ~A"
+                         (eval-maybe val)
+                         (eval-maybe sft)))))
 
  (-define-syntax
   right-shift
   (syntax-rules ()
-    ((_ val sft) (format "~A >> ~A" val sft))))
+    ((_ val sft) (format "~A >> ~A"
+                         (eval-maybe 'val)
+                         (eval-maybe 'sft)))))
 
  (-define-syntax
   not
   (syntax-rules ()
-    ((_ o) (format "~(~A)" (str o)))))
+    ((_ o) (format "~(~A)" (eval-maybe 'o)))))
 
  (-define-syntax
   and
   (syntax-rules ()
-    ((_ o o* ...) (-apply prefix->infix " && " (str (list o o* ...))))))
+    ((_ o o* ...) (prefix->infix " && " o o* ...))))
 
  (-define-syntax
   or
   (syntax-rules ()
-    ((_ o o* ...) (-apply prefix->infix " || " (str (list o o* ...))))))
+    ((_ o o* ...) (prefix->infix " || " o o* ...))))
 
  (-define-syntax
   import
   (syntax-rules ()
-    ((_ o ...) (-apply
-                -string-append
-                (-map
-                 (-lambda (f)
-                          (-if (-string? f)
-                               (format "#include ~A\n" f)
-                               (format "#include <~A>\n" f)))
-                 (list o ...))))))
+    ((_ o o* ...) (-apply
+                   -string-append
+                   (-map
+                    (-lambda (f)
+                             (-if (-string? f)
+                                  (format "#include \"~A\"\n" f)
+                                  (format "#include <~A>\n" f)))
+                    (-list 'o 'o* ...))))))
  )
