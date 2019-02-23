@@ -125,4 +125,30 @@
                                   (format "#include \"~A\"\n" f)
                                   (format "#include <~A>\n" f)))
                     (-list 'o 'o* ...))))))
+
+ (-define-syntax
+  binding-deconstruct
+  (syntax-rules (=)
+    ((_ binding) (-eval (-cons 'binding-deconstruct 'binding)))
+    ((_ name type type* ... = val)
+     (format "~A~A = ~A;\n"
+             (-string-join (-map -symbol->string
+                                 (-list 'type 'type* ...))
+                           " " 'suffix)
+             (-symbol->string 'name)
+             val))
+    ((_ name type type* ...)
+     (format "~A~A;\n"
+             (-string-join (-map -symbol->string
+                                 (-list 'type 'type* ...))
+                           " " 'suffix)
+             (-symbol->string 'name)))))
+
+ (-define-syntax
+  defvar
+  (syntax-rules (binding-deconstruct)
+    ((_ binding) (binding-deconstruct binding))
+    ((_ binding binding* ...)
+     (-string-append (binding-deconstruct binding)
+                     (defvar binding* ...)))))
  )
