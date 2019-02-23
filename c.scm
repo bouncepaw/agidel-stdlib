@@ -201,4 +201,17 @@
   return
   (syntax-rules ()
     ((_ o) (format "return ~A~A" (eval-maybe o) (semicolon-maybe)))))
+
+ (-define-syntax
+  _bracket
+  (syntax-rules ()
+    ((_ fun arg ...)
+     (format "~A(~A)~A"
+             'fun
+             (-string-join (-map ->string
+                                 (-map eval-maybe
+                                       (-list arg ...)))
+                           ", "
+                           'infix)
+             (semicolon-maybe)))))
  )
