@@ -151,4 +151,37 @@
     ((_ binding binding* ...)
      (-string-append (binding-deconstruct binding)
                      (defvar binding* ...)))))
+
+ (-define-syntax
+  disname+types
+  (syntax-rules ()
+    ((_ name+types)
+     (format "~A~A"
+             (-string-join (-map -symbol->string (-cdr name+types))
+                           " "
+                           'suffix)
+             (-car name+types)))))
+
+ (-define-syntax
+  disarg
+  (syntax-rules ()
+    ((_ args) (-string-join
+               (-map (-lambda (arg) (disname+types arg)) args)
+               ", "
+               'infix))))
+
+ (-define-syntax
+  defun
+  (syntax-rules ()
+    ((_ name+types args)
+     (-let ((signature (disname+types 'name+types))
+            (arguments (disarg 'args)))
+           (format "~A (~A);\n" signature arguments)))
+    ((_ name+types args expr ...)
+     (-let ((signature (disname+types 'name+types))
+            (arguments (disarg 'args)))
+           (format "~A (~A) {\n~A}\n"
+                   signature
+                   arguments
+                   (-string-append expr ...))))))
  )
