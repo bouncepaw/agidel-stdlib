@@ -200,5 +200,5 @@
  (-define-syntax
   return
   (syntax-rules ()
-    (_ o) (format "return ~A~A" (eval-maybe o) (semicolon-maybe))))
+    ((_ o) (format "return ~A~A" (eval-maybe o) (semicolon-maybe)))))
  )
