@@ -283,4 +283,13 @@
                                  (-list 'enumerator* ...))
                            ",\n")
              (semicolon-maybe)))))
+
+ (-define-syntax
+  struct
+  (syntax-rules (defvar)
+    ((_ name decl* ...)
+     (format "struct ~A {\n~A}~A"
+             'name
+             (defvar decl* ...)
+             (semicolon-maybe)))))
  )
