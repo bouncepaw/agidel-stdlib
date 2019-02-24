@@ -267,4 +267,20 @@
   (syntax-rules (not)
     ((_ test expr ...)
      (while (not test) expr ...))))
+
+ (-define-syntax
+  enum
+  (syntax-rules ()
+    ((_ name enumerator* ...)
+     (format "enum ~A {\n~A\n}~A"
+             'name
+             (-string-join (-map (-lambda (e)
+                                          (-if (-list? e)
+                                               (format "~A = ~A"
+                                                       (-car e)
+                                                       (eval-maybe (-cadr e)))
+                                               (symbol->string e)))
+                                 (-list 'enumerator* ...))
+                           ",\n")
+             (semicolon-maybe)))))
  )
