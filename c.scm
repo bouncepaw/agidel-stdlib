@@ -292,4 +292,14 @@
              'name
              (defvar decl* ...)
              (semicolon-maybe)))))
+
+ (-define-syntax
+  union
+  (syntax-rules (|| defvar)
+    ((_ name decl* ...)
+     (-apply format "union ~A {\n~A}~A"
+             (-if (-list? 'name)
+                  (-list '|| (defvar name decl* ...))
+                  (-list name (defvar decl* ...)))
+             (semicolon-maybe)))))
  )
