@@ -21,8 +21,8 @@
   (syntax-rules (!!)
     ((_ !! lst) (-map -->string lst))
     ((_ elt) (-cond
-              ((-string? 'elt) (-string-append "\"" 'elt "\""))
-              ((-list? 'elt) (-map -->string 'elt))
+              ((-string? elt) (-string-append "\"" elt "\""))
+              ((-list? elt) (-map -->string 'elt))
               (else (-->string 'elt))))
     ((_ elt elt* ...) (str (-eval (-list elt elt* ...))))))
 
@@ -222,7 +222,8 @@
     ((_ fun arg ...)
      (format "~A(~A)~A"
              'fun
-             (-string-join (-map -->string
+             (-string-join (-map (-lambda (s)
+                                          (str s))
                                  (-map eval-maybe
                                        (-list 'arg ...)))
                            ", "
@@ -260,8 +261,8 @@
     ((_ test thenc elsec)
      (format "~A ? ~A : ~A~A"
              (eval-maybe 'test)
-             (eval-maybe 'thenc)
-             (eval-maybe 'elsec)
+             thenc
+             elsec
              (semicolon-maybe)))))
 
  (-define-syntax
