@@ -246,7 +246,7 @@
   unless
   (syntax-rules ()
     ((_ test thenc elsec)
-     (if (not test) thenc elsec))))
+     (if test elsec thenc))))
 
  (-define-syntax
   if*
@@ -257,6 +257,12 @@
              (eval-maybe 'thenc)
              (eval-maybe 'elsec)
              (semicolon-maybe)))))
+
+ (-define-syntax
+  unless*
+  (syntax-rules ()
+    ((_ test thenc elsec)
+     (if* test elsec thenc))))
 
  (-define-syntax
   begin
