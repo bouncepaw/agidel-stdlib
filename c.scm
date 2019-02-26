@@ -249,6 +249,16 @@
      (if (not test) thenc elsec))))
 
  (-define-syntax
+  if*
+  (syntax-rules ()
+    ((_ test thenc elsec)
+     (format "~A ? ~A : ~A~A"
+             (eval-maybe 'test)
+             (eval-maybe 'thenc)
+             (eval-maybe 'elsec)
+             (semicolon-maybe)))))
+
+ (-define-syntax
   begin
   (syntax-rules ()
     ((_ expr ...)
