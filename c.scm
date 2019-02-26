@@ -7,6 +7,12 @@
          (prefix srfi-13 -)
          format)
 
+ (-define-syntax
+  newline
+  (syntax-rules ()
+    ((_) "\n")
+    ((_ str) (format "~A\n" str))))
+
  (-define (eval-maybe o)
           (-if (-list? o) (-eval o) o))
 
