@@ -4,6 +4,7 @@
  (import (prefix scheme -)
          (prefix chicken.base -)
          (prefix chicken.string -)
+         (only chicken.syntax expand)
          (prefix srfi-13 -)
          format)
 
@@ -13,6 +14,10 @@
     ((_) "\n")
     ((_ str) (format "~A\n" str))))
 
+ (-define-syntax
+  expand-maybe
+  (syntax-rules ()
+    ((_ o) (-if (-symbol? 'o) 'o (expand o)))))
  (-define (eval-maybe o)
           (-if (-list? o) (-eval o) o))
 
@@ -247,7 +252,10 @@
   if
   (syntax-rules ()
     ((_ test thenc elsec)
-     (format "if (~A) ~A else ~A" (eval-maybe 'test) thenc elsec))))
+     (format "if (~A) ~A else ~A"
+             (expand-maybe 'test)
+             thenc
+             elsec))))
 
  (-define-syntax
   unless
@@ -260,7 +268,7 @@
   (syntax-rules ()
     ((_ test thenc elsec)
      (format "~A ? ~A : ~A~A"
-             (eval-maybe 'test)
+             (expand-maybe 'test)
              thenc
              elsec
              (semicolon-maybe)))))
