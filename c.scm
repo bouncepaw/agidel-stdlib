@@ -288,6 +288,14 @@
              (expand (begin expr* ...))))))
 
  (-define-syntax
+  when-not
+  (syntax-rules ()
+    ((_ test expr* ...)
+     (format "if (!(~A)) ~A"
+             (expand-maybe 'test)
+             (expand (begin expr* ...))))))
+
+ (-define-syntax
   begin
   (syntax-rules ()
     ((_ expr ...)
