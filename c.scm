@@ -251,6 +251,10 @@
  (-define-syntax
   if
   (syntax-rules ()
+    ((_ test thenc)
+     (format "if (~A) ~A"
+             (expand-maybe 'test)
+             thenc))
     ((_ test thenc elsec)
      (format "if (~A) ~A else ~A"
              (expand-maybe 'test)
@@ -260,6 +264,10 @@
  (-define-syntax
   unless
   (syntax-rules ()
+    ((_ test thenc)
+     (format "if (!(~A)) ~A"
+             (expand-maybe 'test)
+             thenc))
     ((_ test thenc elsec)
      (if test elsec thenc))))
 
