@@ -333,4 +333,10 @@
                   (-list '|| (defvar name decl* ...))
                   (-list name (defvar decl* ...)))
              (semicolon-maybe)))))
+
+ (-define-syntax
+  label
+  (syntax-rules ()
+    ((_ name stmt)
+     (format "~A: ~A" 'name stmt))))
  )
