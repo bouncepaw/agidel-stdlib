@@ -339,4 +339,10 @@
   (syntax-rules ()
     ((_ name stmt)
      (format "~A: ~A" 'name stmt))))
+
+ (-define-syntax
+  goto
+  (syntax-rules ()
+    ((_ lbl)
+     (format "goto ~A~A" 'lbl (semicolon-maybe)))))
  )
