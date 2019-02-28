@@ -17,7 +17,9 @@
  (-define-syntax
   expand-maybe
   (syntax-rules ()
-    ((_ o) (-if (-symbol? 'o) 'o (expand o)))))
+    ((_ o) (-if (-symbol? o) 'o (expand o)))))
+ (-define (expand!? o)
+          (-if (-list? o) (-expand o) o))
  (-define (eval-maybe o)
           (-if (-list? o) (-eval o) o))
 
@@ -35,69 +37,38 @@
   prefix->infix
   (syntax-rules ()
     ((_ operator operand operand* ...)
-     (format
-      "(~A)"
-      (-let* ((operands (-list 'operand 'operand* ...))
-              (evalλ    (-lambda (o)
-                                 (-cond
-                                  ((-list? o) (-eval o))
-                                  ((-string? o) (-string-append "\"" o "\""))
-                                  (else (-->string o)))))
-              (evaled   (-map evalλ operands)))
-             (-string-join evaled 'operator 'infix))))))
+     (format "(~A)"
+             (-string-join
+              (-map -->string
+                    (-map expand!?
+                          (-list 'operand 'operand* ...)))
+              'operator
+              'infix)))))
  (-define-syntax
   join-with-space
   (syntax-rules ()
     ((_) "")
-    ((_ o* ...) (-string-join (str !! (-map eval-maybe (-list 'o* ...)))
+    ((_ o* ...) (-string-join (str !! (-map (-lambda (x) (expand-maybe x))
+                                            (-list 'o* ...)))
                               " " 'infix))))
  (-define-syntax
-  +
+  define-multioperator
   (syntax-rules ()
-    ((_ o) (format "+~A" 'o))
-    ((_ o o* ...) (prefix->infix " + " o o* ...))))
-
- (-define-syntax
-  -
-  (syntax-rules ()
-    ((_ o) (format "-(~A)" o))
-    ((_ o o* ...) (prefix->infix " - " o o* ...))))
-
- (-define-syntax
-  /
-  (syntax-rules ()
-    ((_ o) (format "(1/~A)" o))
-    ((_ o o* ...) (prefix->infix " / " o o* ...))))
-
- (-define-syntax
-  *
-  (syntax-rules ()
-    ((_ o) (format "*~A" o))
-    ((_ o o* ...) (prefix->infix " * " o o* ...))))
-
- (-define-syntax
-  %
-  (syntax-rules ()
-    ((_ o) (-number->string (-exact->inexact (-/ o 100))))
-    ((_ o o* ...) (prefix->infix " % " o o* ...))))
-
- (-define-syntax
-  bitor
-  (syntax-rules ()
-    ((_ o) (str o))
-    ((_ o o* ...) (prefix->infix " | " o o* ...))))
-
- (-define-syntax
-  bitand
-  (syntax-rules ()
-    ((_ o) (str o))
-    ((_ o o* ...) (prefix->infix " & " o o* ...))))
-
- (-define-syntax
-  xor
-  (syntax-rules ()
-    ((_ o) (str o))
-    ((_ o o* ...) (prefix->infix " ^ " o o* ...))))
+    ((_ name str expr1) (-define-syntax
+                         name
+                         (syntax-rules (o o*)
+                           ((_ o) expr1)
+                           ((_ o o* ...) (prefix->infix str o o* ...)))))))
+ (define-multioperator + " + " (format "+~A" 'o))
+ (define-multioperator - " - " (format "-(~A)" o))
+ (define-multioperator / " / " (format "(1/~A)" o))
+ (define-multioperator * " * " (format "*~A" o))
+ (define-multioperator % " % " (-number->string (-exact->inexact (-/ o 100))))
+ (define-multioperator bitor " | " (str o))
+ (define-multioperator bitand " & " (str o))
+ (define-multioperator xor " ^ " (str o))
+ (define-multioperator and " && " (quote false))
+ (define-multioperator or " || " (quote true))
 
  (-define-syntax
   compl
@@ -123,15 +94,6 @@
   (syntax-rules ()
     ((_ o) (format "!(~A)" (eval-maybe 'o)))))
 
- (-define-syntax
-  and
-  (syntax-rules ()
-    ((_ o o* ...) (prefix->infix " && " o o* ...))))
-
- (-define-syntax
-  or
-  (syntax-rules ()
-    ((_ o o* ...) (prefix->infix " || " o o* ...))))
 
  (-define-syntax
   import
@@ -302,6 +264,14 @@
      (format "if (!(~A)) ~A"
              (expand-maybe 'test)
              (expand (begin expr* ...))))))
+
+ (-define-syntax
+  do-while
+  (syntax-rules ()
+    ((_ test expr* ...)
+     (format "do ~A while (~A)"
+             (expand (begin expr* ...))
+             (expand-maybe 'test)))))
 
  (-define-syntax
   begin
