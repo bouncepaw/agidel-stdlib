@@ -1,27 +1,18 @@
 (module
  agidel-plugin.c
  *
- (import (prefix scheme -)
+ (import (rename (prefix scheme -) (-quote quote))
          (prefix chicken.base -)
          (prefix chicken.string -)
+         (prefix matchable -)
          (only chicken.syntax expand)
          (prefix srfi-13 -)
          format)
 
- (-define-syntax
-  newline
-  (syntax-rules ()
-    ((_) "\n")
-    ((_ str) (format "~A\n" str))))
-
- (-define-syntax
-  expand-maybe
-  (syntax-rules ()
-    ((_ o) (-if (-symbol? o) 'o (expand o)))))
- (-define (expand!? o)
-          (-if (-list? o) (-expand o) o))
- (-define (eval-maybe o)
-          (-if (-list? o) (-eval o) o))
+ (-define newline
+          (-match-lambda*
+           ((_) "\n")
+           ((_ str) (format "~A\n" str))))
 
  (-define-syntax
   str
@@ -33,43 +24,31 @@
               (else (-->string 'elt))))
     ((_ elt elt* ...) (str (-eval (-list elt elt* ...))))))
 
- (-define-syntax
-  prefix->infix
-  (syntax-rules ()
-    ((_ operator operand operand* ...)
-     (format "(~A)"
+ (-define (prefix->infix operator os)
+          (format "(~A)"
              (-string-join
-              (-map -->string
-                    (-map expand!?
-                          (-list 'operand 'operand* ...)))
-              'operator
-              'infix)))))
+              (-map -->string os)
+              operator
+              'infix)))
  (-define-syntax
-  join-with-space
+  multioperator
   (syntax-rules ()
-    ((_) "")
-    ((_ o* ...) (-string-join (str !! (-map (-lambda (x) (expand-maybe x))
-                                            (-list 'o* ...)))
-                              " " 'infix))))
- (-define-syntax
-  define-multioperator
-  (syntax-rules ()
-    ((_ name str expr1) (-define-syntax
-                         name
-                         (syntax-rules (o o*)
-                           ((_ o) expr1)
-                           ((_ o o* ...) (prefix->infix str o o* ...)))))))
- (define-multioperator + " + " (format "+~A" 'o))
- (define-multioperator - " - " (format "-(~A)" o))
- (define-multioperator / " / " (format "(1/~A)" o))
- (define-multioperator * " * " (format "*~A" o))
- (define-multioperator % " % " (-number->string (-exact->inexact (-/ o 100))))
- (define-multioperator bitor " | " (str o))
- (define-multioperator bitand " & " (str o))
- (define-multioperator xor " ^ " (str o))
- (define-multioperator and " && " (quote false))
- (define-multioperator or " || " (quote true))
+    ((_ operator expr1)
+     (-match-lambda*
+      ((o) 'expr1)
+      (os (prefix->infix operator os))))))
 
+ (-define + (multioperator " + " (format "+~A" o)))
+ (-define - (multioperator " - " (format "-(~A)" o)))
+ (-define / (multioperator " / " (format "(1/~A)" o)))
+ (-define * (multioperator " * " (format "*~A" o)))
+ (-define % (multioperator " % " (-number->string (-exact->inexact (-/ o 100)))))
+ (-define bitor (multioperator " | " (str o)))
+ (-define bitand (multioperator " & " (str o)))
+ (-define xor (multioperator " ^ " (str o)))
+ (-define and (multioperator " && " (quote false)))
+ (-define or (multioperator " || " (quote true)))
+#|
  (-define-syntax
   compl
   (syntax-rules ()
@@ -339,4 +318,5 @@
   (syntax-rules ()
     ((_ lbl)
      (format "goto ~A~A" 'lbl (semicolon-maybe)))))
+|#
  )
