@@ -26,10 +26,10 @@
 
  (-define (prefix->infix operator os)
           (format "(~A)"
-             (-string-join
-              (-map -->string os)
-              operator
-              'infix)))
+                  (-string-join
+                   (-map -->string os)
+                   operator
+                   'infix)))
  (-define-syntax
   multioperator
   (syntax-rules ()
@@ -53,250 +53,253 @@
  (-define (compl o) (format "~~(~A)" o))
  (-define (left-shift val sft) (format "~A << ~A" val sft))
  (-define (right-shift val sft) (format "~A >> ~A" val sft))
-#|
+
+ (-define (import . fs)
+          (-apply -string-append
+                  (-map (-lambda (f)
+                                 (-if (-string? f)
+                                      (format "#include \"~A\"\n" f)
+                                      (format "#include <~A>\n" f)))
+                        fs)))
+ #|
  (-define-syntax
-  import
-  (syntax-rules ()
-    ((_ o o* ...) (-apply
-                   -string-append
-                   (-map
-                    (-lambda (f)
-                             (-if (-string? f)
-                                  (format "#include \"~A\"\n" f)
-                                  (format "#include <~A>\n" f)))
-                    (-list 'o 'o* ...))))))
+ import
+ (syntax-rules ()
+ ((_ o o* ...) (-apply
+ -string-append
+ ))))
 
  (-define-syntax
-  binding-deconstruct
-  (syntax-rules (=)
-    ((_ binding) (-eval (-cons 'binding-deconstruct 'binding)))
-    ((_ name type type* ... = val)
-     (format "~A~A = ~A;\n"
-             (-string-join (-map -symbol->string
-                                 (-list 'type 'type* ...))
-                           " " 'suffix)
-             (-symbol->string 'name)
-             val))
-    ((_ name type type* ...)
-     (format "~A~A;\n"
-             (-string-join (-map -symbol->string
-                                 (-list 'type 'type* ...))
-                           " " 'suffix)
-             (-symbol->string 'name)))))
+ binding-deconstruct
+ (syntax-rules (=)
+ ((_ binding) (-eval (-cons 'binding-deconstruct 'binding)))
+ ((_ name type type* ... = val)
+ (format "~A~A = ~A;\n"
+ (-string-join (-map -symbol->string
+ (-list 'type 'type* ...))
+ " " 'suffix)
+ (-symbol->string 'name)
+ val))
+ ((_ name type type* ...)
+ (format "~A~A;\n"
+ (-string-join (-map -symbol->string
+ (-list 'type 'type* ...))
+ " " 'suffix)
+ (-symbol->string 'name)))))
 
  (-define-syntax
-  defvar
-  (syntax-rules (binding-deconstruct)
-    ((_ binding) (binding-deconstruct binding))
-    ((_ binding binding* ...)
-     (-string-append (binding-deconstruct binding)
-                     (defvar binding* ...)))))
+ defvar
+ (syntax-rules (binding-deconstruct)
+ ((_ binding) (binding-deconstruct binding))
+ ((_ binding binding* ...)
+ (-string-append (binding-deconstruct binding)
+ (defvar binding* ...)))))
 
  (-define-syntax
-  disname+types
-  (syntax-rules ()
-    ((_ name+types)
-     (format "~A~A"
-             (-string-join (-map -symbol->string (-cdr name+types))
-                           " "
-                           'suffix)
-             (-car name+types)))))
+ disname+types
+ (syntax-rules ()
+ ((_ name+types)
+ (format "~A~A"
+ (-string-join (-map -symbol->string (-cdr name+types))
+ " "
+ 'suffix)
+ (-car name+types)))))
 
  (-define-syntax
-  disarg
-  (syntax-rules ()
-    ((_ args) (-string-join
-               (-map (-lambda (arg) (disname+types arg)) args)
-               ", "
-               'infix))))
+ disarg
+ (syntax-rules ()
+ ((_ args) (-string-join
+ (-map (-lambda (arg) (disname+types arg)) args)
+ ", "
+ 'infix))))
 
  (-define-syntax
-  defun
-  (syntax-rules ()
-    ((_ name+types args)
-     (-let ((signature (disname+types 'name+types))
-            (arguments (disarg 'args)))
-           (format "~A (~A);\n" signature arguments)))
-    ((_ name+types args expr ...)
-     (-let ((signature (disname+types 'name+types))
-            (arguments (disarg 'args)))
-           (format "~A (~A) {\n~A}\n"
-                   signature
-                   arguments
-                   (-string-append expr ...))))))
+ defun
+ (syntax-rules ()
+ ((_ name+types args)
+ (-let ((signature (disname+types 'name+types))
+ (arguments (disarg 'args)))
+ (format "~A (~A);\n" signature arguments)))
+ ((_ name+types args expr ...)
+ (-let ((signature (disname+types 'name+types))
+ (arguments (disarg 'args)))
+ (format "~A (~A) {\n~A}\n"
+ signature
+ arguments
+ (-string-append expr ...))))))
 
  (-define (semicolon-maybe)
-          ";\n")
+ ";\n")
  (-define-syntax
-  pragma
-  (syntax-rules ()
-    ((_ dir dir* ...)
-     (-apply -string-append
-             "#pragma "
-             (-string-join (-map ->string (-list dir dir* ...))
-                           " " 'infix)
-             "\n"))))
+ pragma
+ (syntax-rules ()
+ ((_ dir dir* ...)
+ (-apply -string-append
+ "#pragma "
+ (-string-join (-map ->string (-list dir dir* ...))
+ " " 'infix)
+ "\n"))))
 
  (-define-syntax
-  return
-  (syntax-rules ()
-    ((_ o) (format "return ~A~A" (eval-maybe 'o) (semicolon-maybe)))))
+ return
+ (syntax-rules ()
+ ((_ o) (format "return ~A~A" (eval-maybe 'o) (semicolon-maybe)))))
 
  (-define-syntax
-  _bracket
-  (syntax-rules ()
-    ((_ fun arg ...)
-     (format "~A(~A)~A"
-             'fun
-             (-string-join (-map (-lambda (s)
-                                          (str s))
-                                 (-map eval-maybe
-                                       (-list 'arg ...)))
-                           ", "
-                           'infix)
-             (semicolon-maybe)))))
+ _bracket
+ (syntax-rules ()
+ ((_ fun arg ...)
+ (format "~A(~A)~A"
+ 'fun
+ (-string-join (-map (-lambda (s)
+ (str s))
+ (-map eval-maybe
+ (-list 'arg ...)))
+ ", "
+ 'infix)
+ (semicolon-maybe)))))
 
  (-define-syntax
-  deftype
-  (syntax-rules ()
-    ((_ name type type* ...)
-     (format "typedef ~A ~A;"
-             (join-with-space type type* ...)
-             'name))))
+ deftype
+ (syntax-rules ()
+ ((_ name type type* ...)
+ (format "typedef ~A ~A;"
+ (join-with-space type type* ...)
+ 'name))))
 
  (-define-syntax
-  _brace
-  (syntax-rules ()
-    ((_ str) str)))
+ _brace
+ (syntax-rules ()
+ ((_ str) str)))
 
  (-define-syntax
-  if
-  (syntax-rules ()
-    ((_ test thenc)
-     (format "if (~A) ~A"
-             (expand-maybe 'test)
-             thenc))
-    ((_ test thenc elsec)
-     (format "if (~A) ~A else ~A"
-             (expand-maybe 'test)
-             thenc
-             elsec))))
+ if
+ (syntax-rules ()
+ ((_ test thenc)
+ (format "if (~A) ~A"
+ (expand-maybe 'test)
+ thenc))
+ ((_ test thenc elsec)
+ (format "if (~A) ~A else ~A"
+ (expand-maybe 'test)
+ thenc
+ elsec))))
 
  (-define-syntax
-  unless
-  (syntax-rules ()
-    ((_ test thenc)
-     (format "if (!(~A)) ~A"
-             (expand-maybe 'test)
-             thenc))
-    ((_ test thenc elsec)
-     (if test elsec thenc))))
+ unless
+ (syntax-rules ()
+ ((_ test thenc)
+ (format "if (!(~A)) ~A"
+ (expand-maybe 'test)
+ thenc))
+ ((_ test thenc elsec)
+ (if test elsec thenc))))
 
  (-define-syntax
-  if*
-  (syntax-rules ()
-    ((_ test thenc elsec)
-     (format "~A ? ~A : ~A~A"
-             (expand-maybe 'test)
-             thenc
-             elsec
-             (semicolon-maybe)))))
+ if*
+ (syntax-rules ()
+ ((_ test thenc elsec)
+ (format "~A ? ~A : ~A~A"
+ (expand-maybe 'test)
+ thenc
+ elsec
+ (semicolon-maybe)))))
 
  (-define-syntax
-  unless*
-  (syntax-rules ()
-    ((_ test thenc elsec)
-     (if* test elsec thenc))))
+ unless*
+ (syntax-rules ()
+ ((_ test thenc elsec)
+ (if* test elsec thenc))))
 
  (-define-syntax
-  when
-  (syntax-rules ()
-    ((_ test expr* ...)
-     (format "if (~A) ~A"
-             (expand-maybe 'test)
-             (expand (begin expr* ...))))))
+ when
+ (syntax-rules ()
+ ((_ test expr* ...)
+ (format "if (~A) ~A"
+ (expand-maybe 'test)
+ (expand (begin expr* ...))))))
 
  (-define-syntax
-  when-not
-  (syntax-rules ()
-    ((_ test expr* ...)
-     (format "if (!(~A)) ~A"
-             (expand-maybe 'test)
-             (expand (begin expr* ...))))))
+ when-not
+ (syntax-rules ()
+ ((_ test expr* ...)
+ (format "if (!(~A)) ~A"
+ (expand-maybe 'test)
+ (expand (begin expr* ...))))))
 
  (-define-syntax
-  do-while
-  (syntax-rules ()
-    ((_ test expr* ...)
-     (format "do ~A while (~A)"
-             (expand (begin expr* ...))
-             (expand-maybe 'test)))))
+ do-while
+ (syntax-rules ()
+ ((_ test expr* ...)
+ (format "do ~A while (~A)"
+ (expand (begin expr* ...))
+ (expand-maybe 'test)))))
 
  (-define-syntax
-  begin
-  (syntax-rules ()
-    ((_ expr ...)
-     (format "{\n~A}\n" (string-append expr ...)))))
+ begin
+ (syntax-rules ()
+ ((_ expr ...)
+ (format "{\n~A}\n" (string-append expr ...)))))
 
  (-define-syntax
-  while
-  (syntax-rules ()
-    ((_ test expr ...)
-     (format "while (~A) ~A"
-             (-if (-symbol? 'test) 'test test)
-             (begin expr ...)))))
+ while
+ (syntax-rules ()
+ ((_ test expr ...)
+ (format "while (~A) ~A"
+ (-if (-symbol? 'test) 'test test)
+ (begin expr ...)))))
 
  (-define-syntax
-  until
-  (syntax-rules (not)
-    ((_ test expr ...)
-     (while (not test) expr ...))))
+ until
+ (syntax-rules (not)
+ ((_ test expr ...)
+ (while (not test) expr ...))))
 
  (-define-syntax
-  enum
-  (syntax-rules ()
-    ((_ name enumerator* ...)
-     (format "enum ~A {\n~A\n}~A"
-             'name
-             (-string-join (-map (-lambda (e)
-                                          (-if (-list? e)
-                                               (format "~A = ~A"
-                                                       (-car e)
-                                                       (eval-maybe (-cadr e)))
-                                               (symbol->string e)))
-                                 (-list 'enumerator* ...))
-                           ",\n")
-             (semicolon-maybe)))))
+ enum
+ (syntax-rules ()
+ ((_ name enumerator* ...)
+ (format "enum ~A {\n~A\n}~A"
+ 'name
+ (-string-join (-map (-lambda (e)
+ (-if (-list? e)
+ (format "~A = ~A"
+ (-car e)
+ (eval-maybe (-cadr e)))
+ (symbol->string e)))
+ (-list 'enumerator* ...))
+ ",\n")
+ (semicolon-maybe)))))
 
  (-define-syntax
-  struct
-  (syntax-rules (defvar)
-    ((_ name decl* ...)
-     (format "struct ~A {\n~A}~A"
-             'name
-             (defvar decl* ...)
-             (semicolon-maybe)))))
+ struct
+ (syntax-rules (defvar)
+ ((_ name decl* ...)
+ (format "struct ~A {\n~A}~A"
+ 'name
+ (defvar decl* ...)
+ (semicolon-maybe)))))
 
  (-define-syntax
-  union
-  (syntax-rules (|| defvar)
-    ((_ name decl* ...)
-     (-apply format "union ~A {\n~A}~A"
-             (-if (-list? 'name)
-                  (-list '|| (defvar name decl* ...))
-                  (-list name (defvar decl* ...)))
-             (semicolon-maybe)))))
+ union
+ (syntax-rules (|| defvar)
+ ((_ name decl* ...)
+ (-apply format "union ~A {\n~A}~A"
+ (-if (-list? 'name)
+ (-list '|| (defvar name decl* ...))
+ (-list name (defvar decl* ...)))
+ (semicolon-maybe)))))
 
  (-define-syntax
-  label
-  (syntax-rules ()
-    ((_ name stmt)
-     (format "~A: ~A" 'name stmt))))
+ label
+ (syntax-rules ()
+ ((_ name stmt)
+ (format "~A: ~A" 'name stmt))))
 
  (-define-syntax
-  goto
-  (syntax-rules ()
-    ((_ lbl)
-     (format "goto ~A~A" 'lbl (semicolon-maybe)))))
-|#
+ goto
+ (syntax-rules ()
+ ((_ lbl)
+ (format "goto ~A~A" 'lbl (semicolon-maybe)))))
+ |#
  )
