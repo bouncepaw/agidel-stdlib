@@ -123,162 +123,154 @@
           (-match-lambda*
            (() (format "return~A" (semicolon-maybe)))
            ((o) (format "return ~A~A" o (semicolon-maybe)))))
-#|
+
+ (-define (_bracket fun . args)
+          (format "~A(~A)~A"
+                  fun
+                  (-string-join (-map -->string args) ", " 'infix)
+                  (semicolon-maybe)))
+ #|
  (-define-syntax
-  _bracket
-  (syntax-rules ()
-    ((_ fun arg ...)
-     (format "~A(~A)~A"
-             'fun
-             (-string-join (-map (-lambda (s)
-                                          (str s))
-                                 (-map eval-maybe
-                                       (-list 'arg ...)))
-                           ", "
-                           'infix)
-             (semicolon-maybe)))))
+ deftype
+ (syntax-rules ()
+ ((_ name type type* ...)
+ (format "typedef ~A ~A;"
+ (join-with-space type type* ...)
+ 'name))))
 
  (-define-syntax
-  deftype
-  (syntax-rules ()
-    ((_ name type type* ...)
-     (format "typedef ~A ~A;"
-             (join-with-space type type* ...)
-             'name))))
+ _brace
+ (syntax-rules ()
+ ((_ str) str)))
 
  (-define-syntax
-  _brace
-  (syntax-rules ()
-    ((_ str) str)))
+ if
+ (syntax-rules ()
+ ((_ test thenc)
+ (format "if (~A) ~A"
+ (expand-maybe 'test)
+ thenc))
+ ((_ test thenc elsec)
+ (format "if (~A) ~A else ~A"
+ (expand-maybe 'test)
+ thenc
+ elsec))))
 
  (-define-syntax
-  if
-  (syntax-rules ()
-    ((_ test thenc)
-     (format "if (~A) ~A"
-             (expand-maybe 'test)
-             thenc))
-    ((_ test thenc elsec)
-     (format "if (~A) ~A else ~A"
-             (expand-maybe 'test)
-             thenc
-             elsec))))
+ unless
+ (syntax-rules ()
+ ((_ test thenc)
+ (format "if (!(~A)) ~A"
+ (expand-maybe 'test)
+ thenc))
+ ((_ test thenc elsec)
+ (if test elsec thenc))))
 
  (-define-syntax
-  unless
-  (syntax-rules ()
-    ((_ test thenc)
-     (format "if (!(~A)) ~A"
-             (expand-maybe 'test)
-             thenc))
-    ((_ test thenc elsec)
-     (if test elsec thenc))))
+ if*
+ (syntax-rules ()
+ ((_ test thenc elsec)
+ (format "~A ? ~A : ~A~A"
+ (expand-maybe 'test)
+ thenc
+ elsec
+ (semicolon-maybe)))))
 
  (-define-syntax
-  if*
-  (syntax-rules ()
-    ((_ test thenc elsec)
-     (format "~A ? ~A : ~A~A"
-             (expand-maybe 'test)
-             thenc
-             elsec
-             (semicolon-maybe)))))
+ unless*
+ (syntax-rules ()
+ ((_ test thenc elsec)
+ (if* test elsec thenc))))
 
  (-define-syntax
-  unless*
-  (syntax-rules ()
-    ((_ test thenc elsec)
-     (if* test elsec thenc))))
+ when
+ (syntax-rules ()
+ ((_ test expr* ...)
+ (format "if (~A) ~A"
+ (expand-maybe 'test)
+ (expand (begin expr* ...))))))
 
  (-define-syntax
-  when
-  (syntax-rules ()
-    ((_ test expr* ...)
-     (format "if (~A) ~A"
-             (expand-maybe 'test)
-             (expand (begin expr* ...))))))
+ when-not
+ (syntax-rules ()
+ ((_ test expr* ...)
+ (format "if (!(~A)) ~A"
+ (expand-maybe 'test)
+ (expand (begin expr* ...))))))
 
  (-define-syntax
-  when-not
-  (syntax-rules ()
-    ((_ test expr* ...)
-     (format "if (!(~A)) ~A"
-             (expand-maybe 'test)
-             (expand (begin expr* ...))))))
+ do-while
+ (syntax-rules ()
+ ((_ test expr* ...)
+ (format "do ~A while (~A)"
+ (expand (begin expr* ...))
+ (expand-maybe 'test)))))
 
  (-define-syntax
-  do-while
-  (syntax-rules ()
-    ((_ test expr* ...)
-     (format "do ~A while (~A)"
-             (expand (begin expr* ...))
-             (expand-maybe 'test)))))
+ begin
+ (syntax-rules ()
+ ((_ expr ...)
+ (format "{\n~A}\n" (string-append expr ...)))))
 
  (-define-syntax
-  begin
-  (syntax-rules ()
-    ((_ expr ...)
-     (format "{\n~A}\n" (string-append expr ...)))))
+ while
+ (syntax-rules ()
+ ((_ test expr ...)
+ (format "while (~A) ~A"
+ (-if (-symbol? 'test) 'test test)
+ (begin expr ...)))))
 
  (-define-syntax
-  while
-  (syntax-rules ()
-    ((_ test expr ...)
-     (format "while (~A) ~A"
-             (-if (-symbol? 'test) 'test test)
-             (begin expr ...)))))
+ until
+ (syntax-rules (not)
+ ((_ test expr ...)
+ (while (not test) expr ...))))
 
  (-define-syntax
-  until
-  (syntax-rules (not)
-    ((_ test expr ...)
-     (while (not test) expr ...))))
+ enum
+ (syntax-rules ()
+ ((_ name enumerator* ...)
+ (format "enum ~A {\n~A\n}~A"
+ 'name
+ (-string-join (-map (-lambda (e)
+ (-if (-list? e)
+ (format "~A = ~A"
+ (-car e)
+ (eval-maybe (-cadr e)))
+ (symbol->string e)))
+ (-list 'enumerator* ...))
+ ",\n")
+ (semicolon-maybe)))))
 
  (-define-syntax
-  enum
-  (syntax-rules ()
-    ((_ name enumerator* ...)
-     (format "enum ~A {\n~A\n}~A"
-             'name
-             (-string-join (-map (-lambda (e)
-                                          (-if (-list? e)
-                                               (format "~A = ~A"
-                                                       (-car e)
-                                                       (eval-maybe (-cadr e)))
-                                               (symbol->string e)))
-                                 (-list 'enumerator* ...))
-                           ",\n")
-             (semicolon-maybe)))))
+ struct
+ (syntax-rules (defvar)
+ ((_ name decl* ...)
+ (format "struct ~A {\n~A}~A"
+ 'name
+ (defvar decl* ...)
+ (semicolon-maybe)))))
 
  (-define-syntax
-  struct
-  (syntax-rules (defvar)
-    ((_ name decl* ...)
-     (format "struct ~A {\n~A}~A"
-             'name
-             (defvar decl* ...)
-             (semicolon-maybe)))))
+ union
+ (syntax-rules (|| defvar)
+ ((_ name decl* ...)
+ (-apply format "union ~A {\n~A}~A"
+ (-if (-list? 'name)
+ (-list '|| (defvar name decl* ...))
+ (-list name (defvar decl* ...)))
+ (semicolon-maybe)))))
 
  (-define-syntax
-  union
-  (syntax-rules (|| defvar)
-    ((_ name decl* ...)
-     (-apply format "union ~A {\n~A}~A"
-             (-if (-list? 'name)
-                  (-list '|| (defvar name decl* ...))
-                  (-list name (defvar decl* ...)))
-             (semicolon-maybe)))))
+ label
+ (syntax-rules ()
+ ((_ name stmt)
+ (format "~A: ~A" 'name stmt))))
 
  (-define-syntax
-  label
-  (syntax-rules ()
-    ((_ name stmt)
-     (format "~A: ~A" 'name stmt))))
-
- (-define-syntax
-  goto
-  (syntax-rules ()
-    ((_ lbl)
-     (format "goto ~A~A" 'lbl (semicolon-maybe)))))
+ goto
+ (syntax-rules ()
+ ((_ lbl)
+ (format "goto ~A~A" 'lbl (semicolon-maybe)))))
  |#
  )
