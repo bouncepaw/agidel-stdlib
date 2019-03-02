@@ -154,6 +154,8 @@
                   elsec
                   (semicolon-maybe)))
 
+ (-define (when test . body)
+          (format "if (~A) ~A" test (-apply begin body)))
  #|
 
 
