@@ -48,32 +48,12 @@
  (-define xor (multioperator " ^ " (str o)))
  (-define and (multioperator " && " (quote false)))
  (-define or (multioperator " || " (quote true)))
+
+ (-define (not o) (format "!(~A)" o))
+ (-define (compl o) (format "~~(~A)" o))
+ (-define (left-shift val sft) (format "~A << ~A" val sft))
+ (-define (right-shift val sft) (format "~A >> ~A" val sft))
 #|
- (-define-syntax
-  compl
-  (syntax-rules ()
-    ((_ o) (format "~~(~A)" (eval-maybe o)))))
-
- (-define-syntax
-  left-shift
-  (syntax-rules ()
-    ((_ val sft) (format "~A << ~A"
-                         (eval-maybe val)
-                         (eval-maybe sft)))))
-
- (-define-syntax
-  right-shift
-  (syntax-rules ()
-    ((_ val sft) (format "~A >> ~A"
-                         (eval-maybe 'val)
-                         (eval-maybe 'sft)))))
-
- (-define-syntax
-  not
-  (syntax-rules ()
-    ((_ o) (format "!(~A)" (eval-maybe 'o)))))
-
-
  (-define-syntax
   import
   (syntax-rules ()
