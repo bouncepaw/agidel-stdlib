@@ -156,34 +156,9 @@
 
  (-define (when test . body)
           (format "if (~A) ~A" test (-apply begin body)))
+ (-define (unless test . body)
+          (format "if (!(~A)) ~A" test (-apply begin body)))
  #|
-
-
- (-define-syntax
- unless
- (syntax-rules ()
- ((_ test thenc)
- (format "if (!(~A)) ~A"
- (expand-maybe 'test)
- thenc))
- ((_ test thenc elsec)
- (if test elsec thenc))))
-
-
- (-define-syntax
- unless*
- (syntax-rules ()
- ((_ test thenc elsec)
- (if* test elsec thenc))))
-
-
- (-define-syntax
- when-not
- (syntax-rules ()
- ((_ test expr* ...)
- (format "if (!(~A)) ~A"
- (expand-maybe 'test)
- (expand (begin expr* ...))))))
 
  (-define-syntax
  do-while
