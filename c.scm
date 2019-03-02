@@ -136,12 +136,8 @@
                   name
                   (semicolon-maybe)))
 
+ (-define (_brace o) o)
  #|
-
- (-define-syntax
- _brace
- (syntax-rules ()
- ((_ str) str)))
 
  (-define-syntax
  if
