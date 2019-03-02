@@ -137,20 +137,15 @@
                   (semicolon-maybe)))
 
  (-define (_brace o) o)
+
+ (-define if
+          (-match-lambda*
+           ((test thenc) (format "if (~A) ~A" test thenc))
+           ((test thenc elsec)
+            (format "if (~A) ~A else ~A" test thenc elsec))))
+
  #|
 
- (-define-syntax
- if
- (syntax-rules ()
- ((_ test thenc)
- (format "if (~A) ~A"
- (expand-maybe 'test)
- thenc))
- ((_ test thenc elsec)
- (format "if (~A) ~A else ~A"
- (expand-maybe 'test)
- thenc
- elsec))))
 
  (-define-syntax
  unless
