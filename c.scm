@@ -118,12 +118,12 @@
  (-define (pragma . dirs)
           (format "#pragma ~A\n"
                   (-string-join (-map -->string dirs) " " 'infix)))
-#|
- (-define-syntax
-  return
-  (syntax-rules ()
-    ((_ o) (format "return ~A~A" (eval-maybe 'o) (semicolon-maybe)))))
 
+ (-define return
+          (-match-lambda*
+           (() (format "return~A" (semicolon-maybe)))
+           ((o) (format "return ~A~A" o (semicolon-maybe)))))
+#|
  (-define-syntax
   _bracket
   (syntax-rules ()
