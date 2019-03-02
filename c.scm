@@ -129,14 +129,14 @@
                   fun
                   (-string-join (-map -->string args) ", " 'infix)
                   (semicolon-maybe)))
+
+ (-define (deftype name . types)
+          (format "typedef ~A ~A~A"
+                  (-string-join (-map -->string types) " ")
+                  name
+                  (semicolon-maybe)))
+
  #|
- (-define-syntax
- deftype
- (syntax-rules ()
- ((_ name type type* ...)
- (format "typedef ~A ~A;"
- (join-with-space type type* ...)
- 'name))))
 
  (-define-syntax
  _brace
