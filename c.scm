@@ -138,6 +138,9 @@
 
  (-define (_brace o) o)
 
+ (-define (begin . body)
+          (format "{\n~A\n}\n" (-append -string-append body)))
+
  (-define if
           (-match-lambda*
            ((test thenc) (format "if (~A) ~A" test thenc))
@@ -150,6 +153,7 @@
                   thenc
                   elsec
                   (semicolon-maybe)))
+
  #|
 
 
@@ -170,13 +174,6 @@
  ((_ test thenc elsec)
  (if* test elsec thenc))))
 
- (-define-syntax
- when
- (syntax-rules ()
- ((_ test expr* ...)
- (format "if (~A) ~A"
- (expand-maybe 'test)
- (expand (begin expr* ...))))))
 
  (-define-syntax
  when-not
