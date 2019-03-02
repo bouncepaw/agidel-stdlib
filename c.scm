@@ -144,6 +144,12 @@
            ((test thenc elsec)
             (format "if (~A) ~A else ~A" test thenc elsec))))
 
+ (-define (if* test thenc elsec)
+          (format "~A ? ~A : ~A~A"
+                  test
+                  thenc
+                  elsec
+                  (semicolon-maybe)))
  #|
 
 
@@ -157,15 +163,6 @@
  ((_ test thenc elsec)
  (if test elsec thenc))))
 
- (-define-syntax
- if*
- (syntax-rules ()
- ((_ test thenc elsec)
- (format "~A ? ~A : ~A~A"
- (expand-maybe 'test)
- thenc
- elsec
- (semicolon-maybe)))))
 
  (-define-syntax
  unless*
