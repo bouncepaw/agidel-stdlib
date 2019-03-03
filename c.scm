@@ -66,11 +66,11 @@
            (semicolon-maybe)))
  (-define-syntax
   deconstruct-binding
-  (syntax-rules (=)
-    ((_ name type type* ... = rhand)
-     (deconstruct-binding* (-list 'type 'type* ...) 'name rhand))
+  (syntax-rules ('=)
+    ((_ name type type* ... '= rhand)
+     (deconstruct-binding* (-list type type* ...) 'name rhand))
     ((_ name type type* ...)
-     (deconstruct-binding* (-list 'type 'type* ...) 'name '()))))
+     (deconstruct-binding* (-list type type* ...) 'name '()))))
 
  (-define-syntax
   defvar
@@ -179,16 +179,15 @@
               ",\n  ")
              (semicolon-maybe)))))
 
- #|
-
  (-define-syntax
- struct
- (syntax-rules (defvar)
- ((_ name decl* ...)
- (format "struct ~A {\n~A}~A"
- 'name
- (defvar decl* ...)
- (semicolon-maybe)))))
+  struct
+  (syntax-rules (defvar)
+    ((_ name decl* ...)
+     (format "struct ~A {\n~A}~A"
+             name
+             (defvar decl* ...)
+             (semicolon-maybe)))))
+ #|
 
  (-define-syntax
  union
