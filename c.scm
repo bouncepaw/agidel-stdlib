@@ -152,70 +152,63 @@
           (format "if (!(~A)) ~A" test (-apply begin body)))
 
  (-define (do-while test . body)
-          (format "do ~A while (~A)\n"
-                  (-apply begin body)
-                  test))
+          (format "do ~A while (~A)\n" (-apply begin body) test))
+
+ (-define (while test . body)
+          (format "while (~A) ~A" test (-apply begin body)))
  #|
 
  (-define-syntax
- while
- (syntax-rules ()
- ((_ test expr ...)
- (format "while (~A) ~A"
- (-if (-symbol? 'test) 'test test)
- (begin expr ...)))))
+  until
+  (syntax-rules (not)
+    ((_ test expr ...)
+     (while (not test) expr ...))))
 
  (-define-syntax
- until
- (syntax-rules (not)
- ((_ test expr ...)
- (while (not test) expr ...))))
+  enum
+  (syntax-rules ()
+    ((_ name enumerator* ...)
+     (format "enum ~A {\n~A\n}~A"
+             'name
+             (-string-join (-map (-lambda (e)
+                                          (-if (-list? e)
+                                               (format "~A = ~A"
+                                                       (-car e)
+                                                       (eval-maybe (-cadr e)))
+                                               (symbol->string e)))
+                                 (-list 'enumerator* ...))
+                           ",\n")
+             (semicolon-maybe)))))
 
  (-define-syntax
- enum
- (syntax-rules ()
- ((_ name enumerator* ...)
- (format "enum ~A {\n~A\n}~A"
- 'name
- (-string-join (-map (-lambda (e)
- (-if (-list? e)
- (format "~A = ~A"
- (-car e)
- (eval-maybe (-cadr e)))
- (symbol->string e)))
- (-list 'enumerator* ...))
- ",\n")
- (semicolon-maybe)))))
+  struct
+  (syntax-rules (defvar)
+    ((_ name decl* ...)
+     (format "struct ~A {\n~A}~A"
+             'name
+             (defvar decl* ...)
+             (semicolon-maybe)))))
 
  (-define-syntax
- struct
- (syntax-rules (defvar)
- ((_ name decl* ...)
- (format "struct ~A {\n~A}~A"
- 'name
- (defvar decl* ...)
- (semicolon-maybe)))))
+  union
+  (syntax-rules (|| defvar)
+    ((_ name decl* ...)
+     (-apply format "union ~A {\n~A}~A"
+             (-if (-list? 'name)
+                  (-list '|| (defvar name decl* ...))
+                  (-list name (defvar decl* ...)))
+             (semicolon-maybe)))))
 
  (-define-syntax
- union
- (syntax-rules (|| defvar)
- ((_ name decl* ...)
- (-apply format "union ~A {\n~A}~A"
- (-if (-list? 'name)
- (-list '|| (defvar name decl* ...))
- (-list name (defvar decl* ...)))
- (semicolon-maybe)))))
+  label
+  (syntax-rules ()
+    ((_ name stmt)
+     (format "~A: ~A" 'name stmt))))
 
  (-define-syntax
- label
- (syntax-rules ()
- ((_ name stmt)
- (format "~A: ~A" 'name stmt))))
-
- (-define-syntax
- goto
- (syntax-rules ()
- ((_ lbl)
- (format "goto ~A~A" 'lbl (semicolon-maybe)))))
+  goto
+  (syntax-rules ()
+    ((_ lbl)
+     (format "goto ~A~A" 'lbl (semicolon-maybe)))))
  |#
  )
