@@ -57,6 +57,7 @@
 
  (-define (deconstruct-binding* types name . rhand)
           (-string-append
+           "  "
            (-string-join (-map -symbol->string types)
                          " " 'suffix)
            (-->string name)
@@ -187,16 +188,17 @@
              name
              (defvar decl* ...)
              (semicolon-maybe)))))
- #|
 
  (-define-syntax
- union
- (syntax-rules (|| defvar)
- ((_ name decl* ...)
- (-apply format "union ~A {\n~A}~A"
- (-if (-list? 'name)
- (-list '|| (defvar name decl* ...))
- (-list name (defvar decl* ...)))
- (semicolon-maybe)))))
- |#
+  union
+  (syntax-rules (|| defvar)
+    ((_ name decl* ...)
+     (-apply format
+             "union ~A {\n~A}~A"
+             (-flatten
+              (-list
+               (-if (-eq? 'quote (-car 'name))
+                    (-list name (defvar decl* ...))
+                    (-list '|| (defvar name decl* ...)))
+               (semicolon-maybe)))))))
  )
