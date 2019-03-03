@@ -15,15 +15,7 @@
            ((_) "\n")
            ((_ str) (format "~A\n" str))))
 
- (-define-syntax
-  str
-  (syntax-rules (!!)
-    ((_ !! lst) (-map -->string lst))
-    ((_ elt) (-cond
-              ((-string? elt) (-string-append "\"" elt "\""))
-              ((-list? elt) (-map -->string 'elt))
-              (else (-->string 'elt))))
-    ((_ elt elt* ...) (str (-eval (-list elt elt* ...))))))
+ (-define (as-is o) o)
 
  (-define (prefix->infix operator os)
           (format "(~A)"
@@ -44,9 +36,9 @@
  (-define / (multioperator " / " (format "(1/~A)" o)))
  (-define * (multioperator " * " (format "*~A" o)))
  (-define % (multioperator " % " (-number->string (-exact->inexact (-/ o 100)))))
- (-define bitor (multioperator " | " (str o)))
- (-define bitand (multioperator " & " (str o)))
- (-define xor (multioperator " ^ " (str o)))
+ (-define bitor (multioperator " | " (as-is o)))
+ (-define bitand (multioperator " & " (as-is o)))
+ (-define xor (multioperator " ^ " (as-is o)))
  (-define and (multioperator " && " (quote false)))
  (-define or (multioperator " || " (quote true)))
 
@@ -158,21 +150,12 @@
           (format "if (~A) ~A" test (-apply begin body)))
  (-define (unless test . body)
           (format "if (!(~A)) ~A" test (-apply begin body)))
+
+ (-define (do-while test . body)
+          (format "do ~A while (~A)\n"
+                  (-apply begin body)
+                  test))
  #|
-
- (-define-syntax
- do-while
- (syntax-rules ()
- ((_ test expr* ...)
- (format "do ~A while (~A)"
- (expand (begin expr* ...))
- (expand-maybe 'test)))))
-
- (-define-syntax
- begin
- (syntax-rules ()
- ((_ expr ...)
- (format "{\n~A}\n" (string-append expr ...)))))
 
  (-define-syntax
  while
