@@ -159,6 +159,9 @@
  (-define (until test . body)
           (-apply while (not test) body))
 
+ (-define (label name stmt) (format "~A: ~A" name stmt))
+ (-define (goto lbl) (format "goto ~A~A" lbl (semicolon-maybe)))
+
  #|
 
  (-define-syntax
@@ -195,17 +198,5 @@
                   (-list '|| (defvar name decl* ...))
                   (-list name (defvar decl* ...)))
              (semicolon-maybe)))))
-
- (-define-syntax
-  label
-  (syntax-rules ()
-    ((_ name stmt)
-     (format "~A: ~A" 'name stmt))))
-
- (-define-syntax
-  goto
-  (syntax-rules ()
-    ((_ lbl)
-     (format "goto ~A~A" 'lbl (semicolon-maybe)))))
  |#
  )
