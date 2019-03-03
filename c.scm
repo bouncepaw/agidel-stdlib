@@ -131,7 +131,7 @@
  (-define (_brace o) o)
 
  (-define (begin . body)
-          (format "{\n~A\n}\n" (-append -string-append body)))
+          (format "{\n~A\n}\n" (-apply -string-append body)))
 
  (-define if
           (-match-lambda*
@@ -162,41 +162,42 @@
  (-define (label name stmt) (format "~A: ~A" name stmt))
  (-define (goto lbl) (format "goto ~A~A" lbl (semicolon-maybe)))
 
- #|
-
  (-define-syntax
   enum
   (syntax-rules ()
     ((_ name enumerator* ...)
-     (format "enum ~A {\n~A\n}~A"
-             'name
-             (-string-join (-map (-lambda (e)
-                                          (-if (-list? e)
-                                               (format "~A = ~A"
-                                                       (-car e)
-                                                       (eval-maybe (-cadr e)))
-                                               (symbol->string e)))
-                                 (-list 'enumerator* ...))
-                           ",\n")
+     (format "enum ~A {\n  ~A\n}~A"
+             name
+             (-string-join
+              (-map (-lambda (e)
+                             (-if (-eq? 'quote (-car e))
+                                  (symbol->string (-cadr e))
+                                  (format "~A = ~A"
+                                          (-car e)
+                                          (eval (-cadr e)))))
+                    (-list 'enumerator* ...))
+              ",\n  ")
              (semicolon-maybe)))))
 
- (-define-syntax
-  struct
-  (syntax-rules (defvar)
-    ((_ name decl* ...)
-     (format "struct ~A {\n~A}~A"
-             'name
-             (defvar decl* ...)
-             (semicolon-maybe)))))
+ #|
 
  (-define-syntax
-  union
-  (syntax-rules (|| defvar)
-    ((_ name decl* ...)
-     (-apply format "union ~A {\n~A}~A"
-             (-if (-list? 'name)
-                  (-list '|| (defvar name decl* ...))
-                  (-list name (defvar decl* ...)))
-             (semicolon-maybe)))))
+ struct
+ (syntax-rules (defvar)
+ ((_ name decl* ...)
+ (format "struct ~A {\n~A}~A"
+ 'name
+ (defvar decl* ...)
+ (semicolon-maybe)))))
+
+ (-define-syntax
+ union
+ (syntax-rules (|| defvar)
+ ((_ name decl* ...)
+ (-apply format "union ~A {\n~A}~A"
+ (-if (-list? 'name)
+ (-list '|| (defvar name decl* ...))
+ (-list name (defvar decl* ...)))
+ (semicolon-maybe)))))
  |#
  )
