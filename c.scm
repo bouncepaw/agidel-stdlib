@@ -156,13 +156,10 @@
 
  (-define (while test . body)
           (format "while (~A) ~A" test (-apply begin body)))
- #|
+ (-define (until test . body)
+          (-apply while (not test) body))
 
- (-define-syntax
-  until
-  (syntax-rules (not)
-    ((_ test expr ...)
-     (while (not test) expr ...))))
+ #|
 
  (-define-syntax
   enum
