@@ -31,83 +31,68 @@
 
  (-define digital-write
           (-match-lambda*
-           ((pin 'high) (scln (format "digitalWrite(~A, HIGH)" pin)))
-           ((pin 'low) (scln (format "digitalWrite(~A, LOW)" pin)))))
+           ((pin 'high) (fun "digitalWrite" pin "HIGH"))
+           ((pin 'low) (fun "digitalWrite" pin "LOW"))))
 
  (-define pin-mode
           (-match-lambda*
-           ((pin 'output) (scln (format "pinMode(~A, OUTPUT)" pin)))
-           ((pin 'input) (scln (format "pinMode(~A, INPUT)" pin)))
-           ((pin 'pullup) (scln (format "pinMode(~A, INPUT_PULLUP)" pin)))))
+           ((pin 'output) (fun "pinMode" pin "OUTPUT"))
+           ((pin 'input) (fun "pinMode" pin "INPUT"))
+           ((pin 'pullup) (fun "pinMode" pin "INPUT_PULLUP"))))
 
- (-define (analog-read pin)
-          (scln (format "analogRead(~A)" pin)))
+ (-define (analog-read pin) (fun "analogRead" pin))
 
  (-define (analog-reference type)
-          (scln (format "analogReference(~A)"
-                        (-match type
-                                ('default         "DEFAULT")
-                                ('internal        "INTERNAL")
-                                ('internal1v1     "INTERNAL1V1")
-                                ('internal2v56    "INTERVAL2V56")
-                                ('external        "EXTERNAL")
-                                ('ar-default      "AR_DEFAULT")
-                                ('ar-internal     "AR_INTERNAL")
-                                ('ar-internal1v0  "AR_INTERNAL1V0")
-                                ('ar-internal1v65 "AR_INTERNAL1V65")
-                                ('ar-interval2v23 "AR_INTERNAL2V23")
-                                ('ar-external     "AR_EXTERNAL")
-                                ('ar-default      "AR_DEFAULT")))))
+          (fun "analogReference"
+               (-match type
+                       ('default         "DEFAULT")
+                       ('internal        "INTERNAL")
+                       ('internal1v1     "INTERNAL1V1")
+                       ('internal2v56    "INTERVAL2V56")
+                       ('external        "EXTERNAL")
+                       ('ar-default      "AR_DEFAULT")
+                       ('ar-internal     "AR_INTERNAL")
+                       ('ar-internal1v0  "AR_INTERNAL1V0")
+                       ('ar-internal1v65 "AR_INTERNAL1V65")
+                       ('ar-interval2v23 "AR_INTERNAL2V23")
+                       ('ar-external     "AR_EXTERNAL")
+                       ('ar-default      "AR_DEFAULT"))))
 
- (-define (analog-write pin value)
-          (scln (format "analogWrite(~A, ~A)" pin value)))
-
- (-define (analog-read-resolution bits)
-          (scln (format "analogReadResolution(~A)" bits)))
-
- (-define (analog-write-resolution bits)
-          (scln (format "analogWriteResolution(~A)" bits)))
-
- (-define (no-tone pin)
-          (scln (format "noTone(~A)" pin)))
+ (-define (analog-write pin value) (fun "analogWrite" pin value))
+ (-define (analog-read-resolution bits) (fun "analogReadResolution" bits))
+ (-define (analog-write-resolution bits) (fun "analogWriteResolution" bits))
+ (-define (no-tone pin) (fun "noTone" pin))
 
  (-define pulse-in
           (-match-lambda*
-           ((pin 'high) (scln (format "pulseIn(~A, ~A)" pin "HIGH")))
-           ((pin 'low) (scln (format "pulseIn(~A, ~A)" pin "LOW")))
-           ((pin 'high timeout)
-            (scln (format "pulseIn(~A, ~A, ~A)" pin "HIGH" timeout)))
-           ((pin 'low timeout)
-            (scln (format "pulseIn(~A, ~A, ~A)" pin "LOW" timeout)))))
+           ((pin 'high) (fun "pulseIn" pin "HIGH"))
+           ((pin 'low) (fun "pulseIn" pin "LOW"))
+           ((pin 'high timeout) (fun "pulseIn" pin "HIGH" timeout))
+           ((pin 'low timeout) (fun "pulseIn" pin "LOW" timeout))))
 
  (-define pulse-in-long
           (-match-lambda*
-           ((pin 'high) (scln (format "pulseInLong(~A, HIGH)" pin)))
-           ((pin 'low) (scln (format "pulseInLong(~A, LOW)" pin)))
-           ((pin 'high timeout)
-            (scln (format "pulseInLong(~A, HIGH, ~A)" pin timeout)))
-           ((pin 'low timeout)
-            (scln (format "pulseInLong(~A, LOW, ~A)" pin timeout)))))
+           ((pin 'high) (fun "pulseInLong" pin "HIGH"))
+           ((pin 'low) (fun "pulseInLong" pin "LOW"))
+           ((pin 'high timeout) (fun "pulseInLong" pin "HIGH" timeout))
+           ((pin 'low timeout) (fun "pulseInLong" pin "LOW" timeout))))
 
  (-define shift-in
           (-match-lambda*
-           ((data clock 'msb-first)
-            (scln (format "shiftIn(~A, ~A, MSBFIRST)" data clock)))
-           ((data clock 'lsb-first)
-            (scln (format "shiftIn(~A, ~A, LSBFIRST)" data clock)))))
+           ((data clock 'msb-first) (fun "shiftIn" data clock "MSBFIRST"))
+           ((data clock 'lsb-first) (fun "shiftIn" data clock "LSBFIRST"))))
 
  (-define shift-out
           (-match-lambda*
            ((data clock 'msb-first value)
-            (scln (format "shiftOut(~A, ~A, MSBFIRST, ~A)" data clock value)))
+            (fun "shiftOut" data clock "MSBFIRST" value))
            ((data clock 'lsb-first value)
-            (scln (format "shiftOut(~A, ~A, LSBFIRST, ~A)" data clock value)))))
+            (fun "shiftOut" data clock "LSBFIRST" value))))
 
  (-define tone
           (-match-lambda*
-           ((pin frequency) (scln (format "tone(~A, ~A)" pin frequency)))
-           ((pin frequency duration)
-            (scln (format "tone(~A, ~A, ~A)" pin frequency duration)))))
+           ((pin frequency) (fun "tone" pin frequency))
+           ((pin frequency duration) (fun "tone" pin frequency duration))))
 
  (-define (delay ms) (fun "delay" ms))
  (-define (delay-microseconds us) (fun "delayMicroseconds" us))
