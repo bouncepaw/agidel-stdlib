@@ -54,4 +54,7 @@
 
  (-define (analog-write-resolution bits)
           (scln (format "analogWriteResolution(~A)" bits)))
+
+ (-define (no-tone pin)
+          (scln (format "noTone(~A)" pin)))
  )
