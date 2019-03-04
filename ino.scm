@@ -60,7 +60,10 @@
 
  (-define pulse-in
           (-match-lambda*
-           ((pin value) (scln (format "pulseIn(~A, ~A)" pin value)))
-           ((pin value timeout)
-            (scln (format "pulseIn(~A, ~A, ~A)" pin value timeout)))))
+           ((pin 'high) (scln (format "pulseIn(~A, ~A)" pin "HIGH")))
+           ((pin 'low) (scln (format "pulseIn(~A, ~A)" pin "LOW")))
+           ((pin 'high timeout)
+            (scln (format "pulseIn(~A, ~A, ~A)" pin "HIGH" timeout)))
+           ((pin 'low timeout)
+            (scln (format "pulseIn(~A, ~A, ~A)" pin "LOW" timeout)))))
  )
