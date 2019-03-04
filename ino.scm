@@ -57,4 +57,10 @@
 
  (-define (no-tone pin)
           (scln (format "noTone(~A)" pin)))
+
+ (-define pulse-in
+          (-match-lambda*
+           ((pin value) (scln (format "pulseIn(~A, ~A)" pin value)))
+           ((pin value timeout)
+            (scln (format "pulseIn(~A, ~A, ~A)" pin value timeout)))))
  )
