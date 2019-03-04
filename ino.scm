@@ -89,4 +89,11 @@
             (scln (format "shiftOut(~A, ~A, MSBFIRST, ~A)" data clock value)))
            ((data clock 'lsb-first value)
             (scln (format "shiftOut(~A, ~A, LSBFIRST, ~A)" data clock value)))))
+
+ (-define tone
+          (-match-lambda*
+           ((pin frequency) (scln (format "tone(~A, ~A)" pin frequency)))
+           ((pin frequency duration)
+            (scln (format "tone(~A, ~A, ~A)") pin frequency duration))))
+
  )
