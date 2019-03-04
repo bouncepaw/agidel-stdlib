@@ -8,10 +8,15 @@
          (only chicken.syntax expand)
          (prefix srfi-13 -)
          format)
- (-define semicolon-maybe
+ (-define scln ;; SemiCoLoN maybe
           (-match-lambda*
            (() ";\n")
            ((str) (format "~A;\n" str))))
 
  (-define (digital-read pin)
-          (semicolon-maybe (format "digitalRead(~A)" pin))))
+          (scln (format "digitalRead(~A)" pin)))
+
+ (-define digital-write
+          (-match-lambda*
+           ((pin 'high) (scln (format "digitalWrite(~A, HIGH)" pin)))
+           ((pin 'low) (scln (format "digitalWrite(~A, LOW)" pin))))))
