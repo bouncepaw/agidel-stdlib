@@ -29,4 +29,20 @@
 
  (-define (analog-read pin)
           (scln (format "analogRead(~A)" pin)))
+
+ (-define (analog-reference type)
+          (scln (format "analogReference(~A)"
+                        (-match type
+                                ('default         "DEFAULT")
+                                ('internal        "INTERNAL")
+                                ('internal1v1     "INTERNAL1V1")
+                                ('internal2v56    "INTERVAL2V56")
+                                ('external        "EXTERNAL")
+                                ('ar-default      "AR_DEFAULT")
+                                ('ar-internal     "AR_INTERNAL")
+                                ('ar-internal1v0  "AR_INTERNAL1V0")
+                                ('ar-internal1v65 "AR_INTERNAL1V65")
+                                ('ar-interval2v23 "AR_INTERNAL2V23")
+                                ('ar-external     "AR_EXTERNAL")
+                                ('ar-default      "AR_DEFAULT")))))
  )
