@@ -7,4 +7,11 @@
          (prefix matchable -)
          (only chicken.syntax expand)
          (prefix srfi-13 -)
-         format))
+         format)
+ (-define semicolon-maybe
+          (-match-lambda*
+           (() ";\n")
+           ((str) (format "~A;\n" str))))
+
+ (-define (digital-read pin)
+          (semicolon-maybe (format "digitalRead(~A)" pin))))
