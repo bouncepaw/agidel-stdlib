@@ -45,4 +45,8 @@
                                 ('ar-interval2v23 "AR_INTERNAL2V23")
                                 ('ar-external     "AR_EXTERNAL")
                                 ('ar-default      "AR_DEFAULT")))))
+
+ (-define (analog-write pin value)
+          (scln (format "analogWrite(~A, ~A)" pin value)))
+
  )
