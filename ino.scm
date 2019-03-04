@@ -13,6 +13,19 @@
            (() ";\n")
            ((str) (format "~A;\n" str))))
 
+ (-define (fun name . args)
+          (-let ((~A-s (-substring
+                        (-let loop ((cnt (-length args))
+                                    (acc ""))
+                              (-if (-zero? cnt)
+                                   acc
+                                   (loop (-- cnt 1)
+                                         (-string-append acc "~A, "))))
+                        0
+                        (-- (-* 4 (-length args)) 2))))
+                (scln (-apply format (-string-append name "(" ~A-s ")")
+                              args))))
+
  (-define (digital-read pin)
           (scln (format "digitalRead(~A)" pin)))
 
@@ -94,6 +107,8 @@
           (-match-lambda*
            ((pin frequency) (scln (format "tone(~A, ~A)" pin frequency)))
            ((pin frequency duration)
-            (scln (format "tone(~A, ~A, ~A)") pin frequency duration))))
+            (scln (format "tone(~A, ~A, ~A)" pin frequency duration)))))
 
+ (-define (delay ms)
+          (fun "delay" ms))
  )
