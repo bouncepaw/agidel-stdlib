@@ -126,4 +126,9 @@
  (-define (is-upper-case ch) (fun "isUpperCase" ch))
  (-define (is-whitespace ch) (fun "isWhitespace" ch))
 
+ (-define random
+          (-match-lambda*
+           ((max) (fun "random" max))
+           ((min max) (fun "random" min max))))
+ (-define (random-seed seed) (fun "randomSeed" rand))
  )
