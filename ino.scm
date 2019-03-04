@@ -66,4 +66,13 @@
             (scln (format "pulseIn(~A, ~A, ~A)" pin "HIGH" timeout)))
            ((pin 'low timeout)
             (scln (format "pulseIn(~A, ~A, ~A)" pin "LOW" timeout)))))
+
+ (-define pulse-in-long
+          (-match-lambda*
+           ((pin 'high) (scln (format "pulseInLong(~A, ~A)" pin "HIGH")))
+           ((pin 'low) (scln (format "pulseInLong(~A, ~A)" pin "LOW")))
+           ((pin 'high timeout)
+            (scln (format "pulseInLong(~A, ~A, ~A)" pin "HIGH" timeout)))
+           ((pin 'low timeout)
+            (scln (format "pulseInLong(~A, ~A, ~A)" pin "LOW" timeout)))))
  )
