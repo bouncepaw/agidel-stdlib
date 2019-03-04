@@ -49,4 +49,6 @@
  (-define (analog-write pin value)
           (scln (format "analogWrite(~A, ~A)" pin value)))
 
+ (-define (analog-read-resolution bits)
+          (scln (format "analogReadResolution(~A)" bits)))
  )
