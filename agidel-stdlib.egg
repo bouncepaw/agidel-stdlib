@@ -5,4 +5,5 @@
  (components
    (extension agidel-plugin.c (source "c.scm"))
    (extension agidel-plugin.sh (source "sh.scm"))
+   (extension agidel-plugin.ino (source "ino.scm"))
    ))
