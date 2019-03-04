@@ -26,4 +26,7 @@
            ((pin 'output) (scln (format "pinMode(~A, OUTPUT)" pin)))
            ((pin 'input) (scln (format "pinMode(~A, INPUT)" pin)))
            ((pin 'pullup) (scln (format "pinMode(~A, INPUT_PULLUP)" pin)))))
+
+ (-define (analog-read pin)
+          (scln (format "analogRead(~A)" pin)))
  )
