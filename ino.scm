@@ -69,10 +69,24 @@
 
  (-define pulse-in-long
           (-match-lambda*
-           ((pin 'high) (scln (format "pulseInLong(~A, ~A)" pin "HIGH")))
-           ((pin 'low) (scln (format "pulseInLong(~A, ~A)" pin "LOW")))
+           ((pin 'high) (scln (format "pulseInLong(~A, HIGH)" pin)))
+           ((pin 'low) (scln (format "pulseInLong(~A, LOW)" pin)))
            ((pin 'high timeout)
-            (scln (format "pulseInLong(~A, ~A, ~A)" pin "HIGH" timeout)))
+            (scln (format "pulseInLong(~A, HIGH, ~A)" pin timeout)))
            ((pin 'low timeout)
-            (scln (format "pulseInLong(~A, ~A, ~A)" pin "LOW" timeout)))))
+            (scln (format "pulseInLong(~A, LOW, ~A)" pin timeout)))))
+
+ (-define shift-in
+          (-match-lambda*
+           ((data clock 'msb-first)
+            (scln (format "shiftIn(~A, ~A, MSBFIRST)" data clock)))
+           ((data clock 'lsb-first)
+            (scln (format "shiftIn(~A, ~A, LSBFIRST)" data clock)))))
+
+ (-define shift-out
+          (-match-lambda*
+           ((data clock 'msb-first value)
+            (scln (format "shiftOut(~A, ~A, MSBFIRST, ~A)" data clock value)))
+           ((data clock 'lsb-first value)
+            (scln (format "shiftOut(~A, ~A, LSBFIRST, ~A)" data clock value)))))
  )
