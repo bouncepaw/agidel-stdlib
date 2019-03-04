@@ -26,8 +26,7 @@
                 (scln (-apply format (-string-append name "(" ~A-s ")")
                               args))))
 
- (-define (digital-read pin)
-          (scln (format "digitalRead(~A)" pin)))
+ (-define (digital-read pin) (fun "digitalRead" pin))
 
  (-define digital-write
           (-match-lambda*
@@ -108,4 +107,8 @@
  (-define (pow base exponent) (fun "pow" base exponent))
  (-define (sq x) (fun "sq" x))
  (-define (sqrt x) (fun "sqrt" x))
+
+ (-define (cos rad) (fun "cos" rad))
+ (-define (sin rad) (fun "sin" rad))
+ (-define (tan rad) (fun "tan" rad))
  )
