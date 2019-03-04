@@ -51,4 +51,7 @@
 
  (-define (analog-read-resolution bits)
           (scln (format "analogReadResolution(~A)" bits)))
+
+ (-define (analog-write-resolution bits)
+          (scln (format "analogWriteResolution(~A)" bits)))
  )
