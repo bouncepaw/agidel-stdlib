@@ -109,6 +109,8 @@
            ((pin frequency duration)
             (scln (format "tone(~A, ~A, ~A)" pin frequency duration)))))
 
- (-define (delay ms)
-          (fun "delay" ms))
+ (-define (delay ms) (fun "delay" ms))
+ (-define (delay-microseconds us) (fun "delayMicroseconds" us))
+ (-define (micros) (fun "micros"))
+ (-defien (millis) (fun "millis"))
  )
