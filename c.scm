@@ -44,6 +44,10 @@
 
  (-define (not o) (format "!(~A)" o))
  (-define (compl o) (format "~~(~A)" o))
+ (-define (inc o) (format "++(~A)" o))
+ (-define (inc* o) (format "(~A)++" o))
+ (-define (dec o) (format "--(~A)" o))
+ (-define (dec* o) (format "(~A)--" o))
  (-define (left-shift val sft) (format "~A << ~A" val sft))
  (-define (right-shift val sft) (format "~A >> ~A" val sft))
 
