@@ -201,4 +201,7 @@
                     (-list name (defvar decl* ...))
                     (-list '|| (defvar name decl* ...)))
                (semicolon-maybe)))))))
+
+ (-define (eq? l r)
+          (format "~A == ~A" l r))
  )
