@@ -10,6 +10,10 @@
          format)
 
  (-define (semicolon-maybe) ";\n")
+ (-define scln
+          (-match-lambda*
+           (() ";\n")
+           ((o) (format "~A;\n" o))))
  (-define newline
           (-match-lambda*
            ((_) "\n")
@@ -44,10 +48,10 @@
 
  (-define (not o) (format "!(~A)" o))
  (-define (compl o) (format "~~(~A)" o))
- (-define (inc o) (format "++(~A)" o))
- (-define (inc* o) (format "(~A)++" o))
- (-define (dec o) (format "--(~A)" o))
- (-define (dec* o) (format "(~A)--" o))
+ (-define (inc o) (scln (format "++(~A)" o)))
+ (-define (inc* o) (scln (format "(~A)++" o)))
+ (-define (dec o) (scln (format "--(~A)" o)))
+ (-define (dec* o) (scln (format "(~A)--" o)))
  (-define (left-shift val sft) (format "~A << ~A" val sft))
  (-define (right-shift val sft) (format "~A >> ~A" val sft))
 
@@ -59,37 +63,36 @@
                                       (format "#include <~A>\n" f)))
                         fs)))
 
- (-define (deconstruct-binding* types name . rhand)
+ (-define (deconstruct-binding* types name rhand)
           (-string-append
            "  "
-           (-string-join (-map -symbol->string types)
+           (-string-join (-map (-compose -->string -cadr) types)
                          " " 'suffix)
            (-->string name)
-           (-if (-null? (-car rhand))
+           (-if (-null? rhand)
                 ""
-                (format " = ~A" (-car rhand)))
+                (format " = ~A" (-if (-symbol? rhand) rhand (-eval rhand))))
            (semicolon-maybe)))
- (-define-syntax
-  deconstruct-binding
-  (syntax-rules ('=)
-    ((_ name type type* ... '= rhand)
-     (deconstruct-binding* (-list type type* ...) 'name rhand))
-    ((_ name type type* ...)
-     (deconstruct-binding* (-list type type* ...) 'name '()))))
+
+ (-define deconstruct-binding
+          (-match-lambda*
+           ((name type ... ''= rhand)
+            (deconstruct-binding* type name rhand))
+           ((name type ...)
+            (deconstruct-binding* type name '()))    ))
 
  (-define-syntax
   defvar
   (syntax-rules ()
-    ((_ binding) (eval (cons 'deconstruct-binding 'binding)))
+    ((_ binding) (-apply deconstruct-binding 'binding))
     ((_ binding binding* ...)
-     (-string-append (eval (cons 'deconstruct-binding 'binding))
+     (-string-append (-apply deconstruct-binding 'binding)
                      (defvar binding* ...)))))
 
  (-define (disname+types name+types)
-          (format "~A~A"
-                  (-string-join (-map -symbol->string (-cdr name+types))
-                                " "
-                                'suffix)
+          (format "~A ~A"
+                  (-string-join (-map (-compose -->string -cadr)
+                                      (-cdr name+types)))
                   (-car name+types)))
  (-define (disarg args)
           (-string-join
@@ -208,5 +211,5 @@
 
  (-define (eq? l r) (format "~A == ~A" l r))
 
- (-define (set l r) (scln (format "~A = ~A" l r)))
+ (-define (set l r) (format "~A = ~A~A" l r (semicolon-maybe)))
  )

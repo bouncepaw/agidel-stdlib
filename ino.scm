@@ -130,5 +130,5 @@
           (-match-lambda*
            ((max) (fun "random" max))
            ((min max) (fun "random" min max))))
- (-define (random-seed seed) (fun "randomSeed" rand))
+ (-define (random-seed seed) (fun "randomSeed" seed))
  )
