@@ -206,6 +206,7 @@
                     (-list '|| (defvar name decl* ...)))
                (semicolon-maybe)))))))
 
- (-define (eq? l r)
-          (format "~A == ~A" l r))
+ (-define (eq? l r) (format "~A == ~A" l r))
+
+ (-define (set l r) (scln (format "~A = ~A" l r)))
  )
