@@ -30,14 +30,16 @@
 
  (-define digital-write
           (-match-lambda*
-           ((pin 'high) (fun "digitalWrite" pin "HIGH"))
-           ((pin 'low) (fun "digitalWrite" pin "LOW"))))
+           ((pin 'high) (digital-write pin "HIGH"))
+           ((pin 'low) (digital-write pin "LOW"))
+           ((pin val) (fun "digitalWrite" pin val))))
 
  (-define pin-mode
           (-match-lambda*
-           ((pin 'output) (fun "pinMode" pin "OUTPUT"))
-           ((pin 'input) (fun "pinMode" pin "INPUT"))
-           ((pin 'pullup) (fun "pinMode" pin "INPUT_PULLUP"))))
+           ((pin 'output) (pin-mode "OUTPUT"))
+           ((pin 'input) (pin-mode "INPUT"))
+           ((pin 'pullup) (pin-mode "INPUT_PULLUP"))
+           ((pin mode) (fun "pinMode" pin mode))))
 
  (-define (analog-read pin) (fun "analogRead" pin))
 
@@ -64,10 +66,12 @@
 
  (-define pulse-in
           (-match-lambda*
-           ((pin 'high) (fun "pulseIn" pin "HIGH"))
-           ((pin 'low) (fun "pulseIn" pin "LOW"))
-           ((pin 'high timeout) (fun "pulseIn" pin "HIGH" timeout))
-           ((pin 'low timeout) (fun "pulseIn" pin "LOW" timeout))))
+           ((pin 'high) (pulse-in pin "HIGH"))
+           ((pin 'low) (pulse-in pin "LOW"))
+           ((pin val) (fun "pulseIn" pin val))
+           ((pin 'high timeout) (pulse-in pin "HIGH" timeout))
+           ((pin 'low timeout) (pulse-in pin "LOW" timeout))
+           ((pin val timeout) (fun "pulseIn" pin val timeout))))
 
  (-define pulse-in-long
           (-match-lambda*
@@ -78,15 +82,15 @@
 
  (-define shift-in
           (-match-lambda*
-           ((data clock 'msb-first) (fun "shiftIn" data clock "MSBFIRST"))
-           ((data clock 'lsb-first) (fun "shiftIn" data clock "LSBFIRST"))))
+           ((data clock 'msb-first) (shift-in data clock "MSBFIRST"))
+           ((data clock 'lsb-first) (shift-in data clock "LSBFIRST"))
+           ((data clock order) (fun "shiftIn" data clock order))))
 
  (-define shift-out
           (-match-lambda*
-           ((data clock 'msb-first value)
-            (fun "shiftOut" data clock "MSBFIRST" value))
-           ((data clock 'lsb-first value)
-            (fun "shiftOut" data clock "LSBFIRST" value))))
+           ((data clock 'msb-first val) (shift-out data clock "MSBFIRST" val))
+           ((data clock 'lsb-first val) (shift-out data clock "LSBFIRST" val))
+           ((data clock order val) (fun "shiftOut" data clock order val))))
 
  (-define tone
           (-match-lambda*
