@@ -143,4 +143,19 @@
  (-define (bit-write x n b) (fun "bitWrite" x n b))
  (-define (high-byte x) (fun "highByte" x))
  (-define (low-byte x) (fun "lowByte" x))
+
+ (-define (attach-interrupt pin isr mode)
+          (fun "attachInterrupt"
+               (format "digitalPinToInterrupt(~A)" pin)
+               isr
+               (-match mode
+                       ('low     "LOW")
+                       ('change  "CHANGE")
+                       ('rising  "RISING")
+                       ('falling "FALLING")
+                       ('high    "HIGH"))))
+ (-define (detach-interrupt pin)
+          (fun "attachInterrupt" (format "digitalPinToInterrupt(~A)" pin)))
+ (-define (interrupts) (fun "interrupts"))
+ (-define (no-interrupts) (fun "noInterrupts"))
  )
