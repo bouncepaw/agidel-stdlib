@@ -131,4 +131,12 @@
            ((max) (fun "random" max))
            ((min max) (fun "random" min max))))
  (-define (random-seed seed) (fun "randomSeed" seed))
+
+ (-define (bit n) (fun "bit" n))
+ (-define (bit-clear x n) (fun "bitClear" x n))
+ (-define (bit-read x n) (fun "bitRead" x n))
+ (-define (bit-set x n) (fun "bitSet" x n))
+ (-define (bit-write x n b) (fun "bitWrite" x n b))
+ (-define (high-byte x) (fun "highByte" x))
+ (-define (low-byte x) (fun "lowByte" x))
  )
