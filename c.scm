@@ -228,4 +228,7 @@
  (define (negative? o) (< o 0))
 
  (define (set l r) (format "~A = ~A~A" l r (scln)))
+
+ (define (size-of-expr expr)         (format "sizeof ~A" expr))
+ (define (size-of-type . type-words) (-apply format "sizeof(~A)" type-words))
  )
