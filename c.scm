@@ -11,7 +11,6 @@
          (prefix srfi-13 -)
          format)
 
- (define (semicolon-maybe) ";\n")
  (define scln
    (-match-lambda*
     (() ";\n")
@@ -66,15 +65,15 @@
                  fs)))
 
  (define (deconstruct-binding* types name rhand)
-   (-string-append
-    "  "
-    (-string-join (-map (-compose -->string -cadr) types)
-                  " " 'suffix)
-    (-->string name)
-    (-if (-null? rhand)
-         ""
-         (format " = ~A" (-if (-symbol? rhand) rhand (-eval rhand))))
-    (semicolon-maybe)))
+   (scln
+    (-string-append
+     "  "
+     (-string-join (-map (-compose -->string -cadr) types)
+                   " " 'suffix)
+     (-->string name)
+     (-if (-null? rhand)
+          ""
+          (format " = ~A" (-if (-symbol? rhand) rhand (-eval rhand)))))))
 
  (define deconstruct-binding
    (-match-lambda*
@@ -123,20 +122,18 @@
 
  (define return
    (-match-lambda*
-    (() (format "return~A" (semicolon-maybe)))
-    ((o) (format "return ~A~A" o (semicolon-maybe)))))
+    (() (scln (format "return")))
+    ((o) (scln (format "return ~A" o)))))
 
  (define (_bracket fun . args)
-   (format "~A(~A)~A"
-           fun
-           (-string-join (-map -->string args) ", " 'infix)
-           (semicolon-maybe)))
+   (scln (format "~A(~A)"
+                 fun
+                 (-string-join (-map -->string args) ", " 'infix))))
 
  (define (deftype name . types)
-   (format "typedef ~A ~A~A"
-           (-string-join (-map -->string types) " ")
-           name
-           (semicolon-maybe)))
+   (scln (format "typedef ~A ~A"
+                 (-string-join (-map -->string types) " ")
+                 name)))
 
  (define (_brace o) o)
 
@@ -150,11 +147,10 @@
      (format "if (~A) ~A else ~A" test thenc elsec))))
 
  (define (if* test thenc elsec)
-   (format "~A ? ~A : ~A~A"
-           test
-           thenc
-           elsec
-           (semicolon-maybe)))
+   (scln (format "~A ? ~A : ~A"
+                 test
+                 thenc
+                 elsec)))
 
  (define (when test . body)
    (format "if (~A) ~A" test (-apply begin body)))
@@ -170,46 +166,43 @@
    (-apply while (not test) body))
 
  (define (label name stmt) (format "~A: ~A" name stmt))
- (define (goto lbl) (format "goto ~A~A" lbl (semicolon-maybe)))
+ (define (goto lbl) (scln (format "goto ~A~A" lbl)))
 
  (-define-syntax
   enum
   (syntax-rules ()
     ((_ name enumerator* ...)
-     (format "enum ~A {\n  ~A\n}~A"
-             name
-             (-string-join
-              (-map (-lambda (e)
-                             (-if (-eq? 'quote (-car e))
-                                  (symbol->string (-cadr e))
-                                  (format "~A = ~A"
-                                          (-car e)
-                                          (eval (-cadr e)))))
-                    (-list 'enumerator* ...))
-              ",\n  ")
-             (semicolon-maybe)))))
+     (scln (format "enum ~A {\n  ~A\n}"
+                   name
+                   (-string-join
+                    (-map (-lambda (e)
+                                   (-if (-eq? 'quote (-car e))
+                                        (symbol->string (-cadr e))
+                                        (format "~A = ~A"
+                                                (-car e)
+                                                (eval (-cadr e)))))
+                          (-list 'enumerator* ...))
+                    ",\n  "))))))
 
  (-define-syntax
   struct
   (syntax-rules (defvar)
     ((_ name decl* ...)
-     (format "struct ~A {\n~A}~A"
-             name
-             (defvar decl* ...)
-             (semicolon-maybe)))))
+     (scln (format "struct ~A {\n~A}~A"
+                   name
+                   (defvar decl* ...))))))
 
  (-define-syntax
   union
   (syntax-rules (|| defvar)
     ((_ name decl* ...)
-     (-apply format
-             "union ~A {\n~A}~A"
-             (-flatten
-              (-list
-               (-if (-eq? 'quote (-car 'name))
-                    (-list name (defvar decl* ...))
-                    (-list '|| (defvar name decl* ...)))
-               (semicolon-maybe)))))))
+     (scln (-apply format
+                   "union ~A {\n~A}~A"
+                   (-flatten
+                    (-list
+                     (-if (-eq? 'quote (-car 'name))
+                          (-list name (defvar decl* ...))
+                          (-list '|| (defvar name decl* ...))))))))))
 
  (define (comparison-operator operator)
    (-lambda operands
@@ -236,5 +229,5 @@
  (define (positive? o) (> o 0))
  (define (negative? o) (< o 0))
 
- (define (set l r) (format "~A = ~A~A" l r (semicolon-maybe)))
+ (define (set l r) (format "~A = ~A~A" l r (scln)))
  )
