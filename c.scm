@@ -231,4 +231,5 @@
 
  (define (size-of-expr expr)         (format "sizeof ~A" expr))
  (define (size-of-type . type-words) (-apply format "sizeof(~A)" type-words))
+ (define (cast expr type)            (format "(~A)~A" type expr))
  )
