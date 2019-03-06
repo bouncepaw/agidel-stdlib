@@ -119,6 +119,8 @@
    (format "#pragma ~A\n"
            (-string-join (-map -->string dirs) " " 'infix)))
 
+ (define (continue) (scln (format "continue")))
+ (define (break)    (scln (format "break")))
  (define return
    (-match-lambda*
     (() (scln (format "return")))
