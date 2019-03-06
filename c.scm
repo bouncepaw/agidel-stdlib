@@ -209,7 +209,11 @@
                     (-list '|| (defvar name decl* ...)))
                (semicolon-maybe)))))))
 
- (-define (eq? l r) (format "~A == ~A" l r))
+ (-define (eq? l r)     (format "~A == ~A" l r))
+ (-define (neq? l r)    (format "~A != ~A" l r))
+ (-define (zero? o)     (format "~A == 0" o))
+ (-define (positive? o) (format "~A > 0" o))
+ (-define (negative? o) (format "~A < 0"))
 
  (-define (set l r) (format "~A = ~A~A" l r (semicolon-maybe)))
  )
