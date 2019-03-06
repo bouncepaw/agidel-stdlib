@@ -3,7 +3,7 @@
  *
  (import (rename (prefix scheme -) (-quote quote)
                  (-quasiquote quasiquote) (-unquote unquote)
-                 (-define define))
+                 (-define define) (-define-syntax define-syntax))
          (prefix chicken.base -)
          (prefix chicken.string -)
          (prefix matchable -)
@@ -28,32 +28,33 @@
             (-map -->string os)
             operator
             'infix)))
- (-define-syntax
-  multioperator
-  (syntax-rules ()
-    ((_ operator expr1)
-     (-match-lambda*
-      ((o) 'expr1)
-      (os (prefix->infix operator os))))))
+ (define-syntax multioperator
+   (syntax-rules ()
+     ((_ operator expr1)
+      (-match-lambda*
+       ((o) 'expr1)
+       (os (prefix->infix operator os))))))
 
- (define + (multioperator " + " (format "+~A" o)))
- (define - (multioperator " - " (format "-(~A)" o)))
- (define / (multioperator " / " (format "(1/~A)" o)))
- (define * (multioperator " * " (format "*~A" o)))
- (define % (multioperator " % " (-number->string (-exact->inexact (-/ o 100)))))
- (define bitor (multioperator " | " (as-is o)))
+ (define +      (multioperator " + " (format "+~A" o)))
+ (define -      (multioperator " - " (format "-(~A)" o)))
+ (define /      (multioperator " / " (format "(1/~A)" o)))
+ (define *      (multioperator " * " (format "*~A" o)))
+ (define %      (multioperator " % "
+                               (-number->string (-exact->inexact (-/ o 100)))))
+ (define bitor  (multioperator " | " (as-is o)))
  (define bitand (multioperator " & " (as-is o)))
- (define xor (multioperator " ^ " (as-is o)))
- (define and (multioperator " && " (quote false)))
- (define or (multioperator " || " (quote true)))
+ (define xor    (multioperator " ^ " (as-is o)))
+ (define and    (multioperator " && " (quote false)))
+ (define or     (multioperator " || " (quote true)))
 
- (define (not o) (format "!(~A)" o))
+ (define (not o)   (format "!(~A)" o))
  (define (compl o) (format "~~(~A)" o))
- (define (inc o) (scln (format "++(~A)" o)))
- (define (inc* o) (scln (format "(~A)++" o)))
- (define (dec o) (scln (format "--(~A)" o)))
- (define (dec* o) (scln (format "(~A)--" o)))
- (define (left-shift val sft) (format "~A << ~A" val sft))
+ (define (inc o)   (scln (format "++(~A)" o)))
+ (define (inc* o)  (scln (format "(~A)++" o)))
+ (define (dec o)   (scln (format "--(~A)" o)))
+ (define (dec* o)  (scln (format "(~A)--" o)))
+
+ (define (left-shift val sft)  (format "~A << ~A" val sft))
  (define (right-shift val sft) (format "~A >> ~A" val sft))
 
  (define (import . fs)
@@ -80,15 +81,14 @@
     ((name type ... ''= rhand)
      (deconstruct-binding* type name rhand))
     ((name type ...)
-     (deconstruct-binding* type name '()))    ))
+     (deconstruct-binding* type name '()))))
 
- (-define-syntax
-  defvar
-  (syntax-rules ()
-    ((_ binding) (-apply deconstruct-binding 'binding))
-    ((_ binding binding* ...)
-     (-string-append (-apply deconstruct-binding 'binding)
-                     (defvar binding* ...)))))
+ (define-syntax defvar
+   (syntax-rules ()
+     ((_ binding) (-apply deconstruct-binding 'binding))
+     ((_ binding binding* ...)
+      (-string-append (-apply deconstruct-binding 'binding)
+                      (defvar binding* ...)))))
 
  (define (disname+types name+types)
    (format "~A ~A"
@@ -101,20 +101,19 @@
     ", "
     'infix))
 
- (-define-syntax
-  defun
-  (syntax-rules ()
-    ((_ name+types args)
-     (-let ((signature (disname+types 'name+types))
-            (arguments (disarg 'args)))
-           (format "~A (~A);\n" signature arguments)))
-    ((_ name+types args expr ...)
-     (-let ((signature (disname+types 'name+types))
-            (arguments (disarg 'args)))
-           (format "~A (~A) {\n~A}\n"
-                   signature
-                   arguments
-                   (-string-append expr ...))))))
+ (define-syntax defun
+   (syntax-rules ()
+     ((_ name+types args)
+      (-let ((signature (disname+types 'name+types))
+             (arguments (disarg 'args)))
+            (format "~A (~A);\n" signature arguments)))
+     ((_ name+types args expr ...)
+      (-let ((signature (disname+types 'name+types))
+             (arguments (disarg 'args)))
+            (format "~A (~A) {\n~A}\n"
+                    signature
+                    arguments
+                    (-string-append expr ...))))))
 
  (define (pragma . dirs)
    (format "#pragma ~A\n"
@@ -168,41 +167,38 @@
  (define (label name stmt) (format "~A: ~A" name stmt))
  (define (goto lbl) (scln (format "goto ~A~A" lbl)))
 
- (-define-syntax
-  enum
-  (syntax-rules ()
-    ((_ name enumerator* ...)
-     (scln (format "enum ~A {\n  ~A\n}"
-                   name
-                   (-string-join
-                    (-map (-lambda (e)
-                                   (-if (-eq? 'quote (-car e))
-                                        (symbol->string (-cadr e))
-                                        (format "~A = ~A"
-                                                (-car e)
-                                                (eval (-cadr e)))))
-                          (-list 'enumerator* ...))
-                    ",\n  "))))))
+ (define-syntax enum
+   (syntax-rules ()
+     ((_ name enumerator* ...)
+      (scln (format "enum ~A {\n  ~A\n}"
+                    name
+                    (-string-join
+                     (-map (-lambda (e)
+                                    (-if (-eq? 'quote (-car e))
+                                         (symbol->string (-cadr e))
+                                         (format "~A = ~A"
+                                                 (-car e)
+                                                 (eval (-cadr e)))))
+                           (-list 'enumerator* ...))
+                     ",\n  "))))))
 
- (-define-syntax
-  struct
-  (syntax-rules (defvar)
-    ((_ name decl* ...)
-     (scln (format "struct ~A {\n~A}~A"
-                   name
-                   (defvar decl* ...))))))
+ (define-syntax struct
+   (syntax-rules (defvar)
+     ((_ name decl* ...)
+      (scln (format "struct ~A {\n~A}~A"
+                    name
+                    (defvar decl* ...))))))
 
- (-define-syntax
-  union
-  (syntax-rules (|| defvar)
-    ((_ name decl* ...)
-     (scln (-apply format
-                   "union ~A {\n~A}~A"
-                   (-flatten
-                    (-list
-                     (-if (-eq? 'quote (-car 'name))
-                          (-list name (defvar decl* ...))
-                          (-list '|| (defvar name decl* ...))))))))))
+ (define-syntax union
+   (syntax-rules (|| defvar)
+     ((_ name decl* ...)
+      (scln (-apply format
+                    "union ~A {\n~A}~A"
+                    (-flatten
+                     (-list
+                      (-if (-eq? 'quote (-car 'name))
+                           (-list name (defvar decl* ...))
+                           (-list '|| (defvar name decl* ...))))))))))
 
  (define (comparison-operator operator)
    (-lambda operands
