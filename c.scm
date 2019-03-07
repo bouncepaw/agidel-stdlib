@@ -238,4 +238,7 @@
     ((test thenc) (format "#if ~A\n~A#endif" test thenc))
     ((test thenc elsec) (format "#if ~A\n~A\n#else\n~A\n#endif"
                                 test thenc elsec))))
+
+ (define (defined id) (format "defined(~A)" id))
+
  )
