@@ -267,4 +267,6 @@
               (-string-join (-map expand-prep-elif (-list 'clause* ...)) "")))))
 
  (define (prep-error error-msg) (format "#error ~A\n" error-msg))
+ (define (defmacro id . replacement)
+   (format "#define ~A ~A" id (-string-join (-map -->string replacement))))
  )
