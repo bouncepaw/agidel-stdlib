@@ -267,6 +267,8 @@
               (-string-join (-map expand-prep-elif (-list 'clause* ...)) "")))))
 
  (define (prep-error error-msg) (format "#error ~A\n" error-msg))
+ ;; todo: add support for parameterized macros
  (define (defmacro id . replacement)
-   (format "#define ~A ~A" id (-string-join (-map -->string replacement))))
+   (format "#define ~A ~A\n" id (-string-join (-map -->string replacement))))
+ (define (undef id) (format "#undef ~A\n" id))
  )
