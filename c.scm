@@ -2,8 +2,8 @@
  agidel-plugin.c
  *
  (import (rename (prefix scheme -) (-quote quote)
-                 (-quasiquote quasiquote) (-unquote unquote)
-                 (-define define) (-define-syntax define-syntax))
+                 (-quasiquote quasiquote) (-define define)
+                 (-define-syntax define-syntax) (-lambda lambda))
          (prefix chicken.base -)
          (prefix chicken.string -)
          (prefix matchable -)
@@ -59,10 +59,10 @@
 
  (define (import . fs)
    (-apply -string-append
-           (-map (-lambda (f)
-                          (-if (-string? f)
-                               (format "#include \"~A\"\n" f)
-                               (format "#include <~A>\n" f)))
+           (-map (lambda (f)
+                   (-if (-string? f)
+                        (format "#include \"~A\"\n" f)
+                        (format "#include <~A>\n" f)))
                  fs)))
 
  (define (deconstruct-binding* types name rhand)
@@ -97,7 +97,7 @@
            (-car name+types)))
  (define (disarg args)
    (-string-join
-    (-map (-lambda (arg) (disname+types arg)) args)
+    (-map (lambda (arg) (disname+types arg)) args)
     ", "
     'infix))
 
@@ -175,12 +175,12 @@
       (scln (format "enum ~A {\n  ~A\n}"
                     name
                     (-string-join
-                     (-map (-lambda (e)
-                                    (-if (-eq? 'quote (-car e))
-                                         (symbol->string (-cadr e))
-                                         (format "~A = ~A"
-                                                 (-car e)
-                                                 (eval (-cadr e)))))
+                     (-map (lambda (e)
+                             (-if (-eq? 'quote (-car e))
+                                  (symbol->string (-cadr e))
+                                  (format "~A = ~A"
+                                          (-car e)
+                                          (eval (-cadr e)))))
                            (-list 'enumerator* ...))
                      ",\n  "))))))
 
@@ -203,18 +203,18 @@
                            (-list '|| (defvar name decl* ...))))))))))
 
  (define (comparison-operator operator)
-   (-lambda operands
-            (-apply
-             and
-             (-map (-lambda (lst)
-                            (format "(~A~A~A)" (-car lst) operator (-cdr lst)))
-                   (-let groups-of-two ((acc '())
-                                        (src operands))
-                         (-if (-eq? 2 (-length src))
-                              (-append acc `(,(-cons (-car src) (-cadr src))))
-                              (groups-of-two
-                               (-append acc `(,(-cons (-car src) (-cadr src))))
-                               (-cdr src))))))))
+   (lambda operands
+     (-apply
+      and
+      (-map (lambda (lst)
+              (format "(~A~A~A)" (-car lst) operator (-cdr lst)))
+            (-let groups-of-two ((acc '())
+                                 (src operands))
+                  (-if (-eq? 2 (-length src))
+                       (-append acc `(,(-cons (-car src) (-cadr src))))
+                       (groups-of-two
+                        (-append acc `(,(-cons (-car src) (-cadr src))))
+                        (-cdr src))))))))
 
  (define eq?  (comparison-operator " == "))
  (define neq? (comparison-operator " != "))
@@ -232,4 +232,10 @@
  (define (size-of-expr expr)         (format "sizeof ~A" expr))
  (define (size-of-type . type-words) (-apply format "sizeof(~A)" type-words))
  (define (cast expr type)            (format "(~A)~A" type expr))
+
+ (define prep-if
+   (-match-lambda*
+    ((test thenc) (format "#if ~A\n~A#endif" test thenc))
+    ((test thenc elsec) (format "#if ~A\n~A\n#else\n~A\n#endif"
+                                test thenc elsec))))
  )
