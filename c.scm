@@ -265,4 +265,6 @@
       (format "~A~A#endif"
               (expand-prep-if 'clause)
               (-string-join (-map expand-prep-elif (-list 'clause* ...)) "")))))
+
+ (define (prep-error error-msg) (format "#error ~A\n" error-msg))
  )
