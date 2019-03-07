@@ -15,10 +15,8 @@
    (-match-lambda*
     (() ";\n")
     ((o) (format "~A;\n" o))))
- (define newline
-   (-match-lambda*
-    ((_) "\n")
-    ((_ str) (format "~A\n" str))))
+ (define (eval-if-list expr)
+   (-if (-symbol? expr) expr (-eval expr)))
 
  (define (as-is o) o)
 
@@ -233,12 +231,38 @@
  (define (size-of-type . type-words) (-apply format "sizeof(~A)" type-words))
  (define (cast expr type)            (format "(~A)~A" type expr))
 
+ (define expand-prep-if
+   (-match-lambda*
+    ((test thenc) (format "#if ~A\n~A\n" test thenc))
+    (((clause-test . thencs))
+     (expand-prep-if (eval-if-list clause-test)
+                     (-apply -string-append
+                             (-map (-compose -->string eval-if-list) thencs))))))
+
+ (define expand-prep-elif
+   (-match-lambda*
+    (('else . elsecs)
+     (format "#else\n~A\n"
+             (-apply -string-append
+                     (-map (-compose -->string eval-if-list) elsecs))))
+    ((test thenc) (format "#elif ~A\n~A\n" test thenc))
+    (((clause-test . thencs))
+     (expand-prep-elif clause-test
+                       (-apply -string-append (-map
+                                               (-compose -->string eval-if-list)
+                                               thencs))))))
  (define prep-if
    (-match-lambda*
-    ((test thenc) (format "#if ~A\n~A#endif" test thenc))
-    ((test thenc elsec) (format "#if ~A\n~A\n#else\n~A\n#endif"
-                                test thenc elsec))))
+    ((test thenc) (format "~A#endif" (expand-prep-if test thenc)))
+    ((test thenc elsec)
+     (format "~A#else\n~A\n#endif" (expand-prep-if test thenc) elsec))))
 
  (define (defined id) (format "defined(~A)" id))
 
+ (define-syntax prep-cond
+   (syntax-rules (else)
+     ((_ clause clause* ...)
+      (format "~A~A#endif"
+              (expand-prep-if 'clause)
+              (-string-join (-map expand-prep-elif (-list 'clause* ...)) "")))))
  )
