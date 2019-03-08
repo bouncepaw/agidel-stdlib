@@ -287,4 +287,14 @@
       (format "switch (~A) {\n~A\n}\n"
               key
               (-string-join (-map case-expand (-list 'clause ...)) "")))))
+
+ (define-syntax for
+   (syntax-rules ()
+     ((_ init-vars test iter-expr body ...)
+      (format "~A\n~A"
+              (-if (-list? (-car 'init-vars))
+                   (expand (cons 'defvar 'init-vars))
+                   (defvar 'init-vars))
+              (while test
+                     (-apply -string-append iter-expr (-list body ...)))))))
  )
