@@ -299,4 +299,5 @@
                      (-apply -string-append iter-expr (-list body ...)))))))
 
  (define (get array element) (format "~A[~A]" array element))
+ (define (deref pointer)     (format "*~A" pointer))
  )
