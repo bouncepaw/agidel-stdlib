@@ -297,4 +297,6 @@
                    (defvar 'init-vars))
               (while test
                      (-apply -string-append iter-expr (-list body ...)))))))
+
+ (define (get array element) (format "~A[~A]" array element))
  )
