@@ -16,7 +16,7 @@
     (() ";\n")
     ((o) (format "~A;\n" o))))
  (define (eval-if-list expr)
-   (-if (-symbol? expr) expr (-eval expr)))
+   (-->string (-if (-symbol? expr) expr (-eval expr))))
 
  (define (as-is o) o)
 
@@ -271,4 +271,20 @@
  (define (defmacro id . replacement)
    (format "#define ~A ~A\n" id (-string-join (-map -->string replacement))))
  (define (undef id) (format "#undef ~A\n" id))
+
+ (define (case-expand clause)
+   (-cond
+    ((-eq? 'else (-car clause))
+     (format "default:\n~Abreak;\n"
+             (-string-join (-map eval-if-list (-cdr clause)) "")))
+    (else
+     (format "~A~Abreak;\n"
+             (-string-join (-map eval-if-list (-car clause)) ":\n" 'suffix)
+             (-string-join (-map eval-if-list (-cdr clause)) "")))))
+ (define-syntax case
+   (syntax-rules ()
+     ((_ key clause ...)
+      (format "switch (~A) {\n~A\n}\n"
+              key
+              (-string-join (-map case-expand (-list 'clause ...)) "")))))
  )
