@@ -301,5 +301,6 @@
  (define (get array element) (format "~A[~A]" array element))
  (define (deref pointer)     (format "*~A" pointer))
  (define (ref pointer)       (format "&~A" pointer))
- (define (sub . os)          (-string-join os "." 'infix))
+ (define (sub . os)          (-string-join (-map -->string os) "." 'infix))
+ (define (-> . os)           (-string-join (-map -->string os) "->" 'infix))
  )
