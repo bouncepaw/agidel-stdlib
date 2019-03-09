@@ -233,6 +233,7 @@
  (define (size-of-type . type-words) (-apply format "sizeof(~A)" type-words))
  (define (cast expr type)            (format "(~A)~A" type expr))
 
+ ;;;; <The C Preprocessor macros>
  (define expand-prep-if
    (-match-lambda*
     ((test thenc) (format "#if ~A\n~A\n" test thenc))
@@ -273,6 +274,12 @@
  (define (defmacro id . replacement)
    (format "#define ~A ~A\n" id (-string-join (-map -->string replacement))))
  (define (undef id) (format "#undef ~A\n" id))
+ (define prep-line
+   (-match-lambda*
+    ((line) (format "#line ~A\n" line))
+    ((line file) (format "#line ~A ~A\n" line file))))
+ ;;;; </The C Preprocessor macros>
+
 
  (define (case-expand clause)
    (-cond
