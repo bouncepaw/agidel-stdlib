@@ -131,12 +131,12 @@
  (define return
    (-match-lambda*
     (() (scln (format "return")))
-    ((o) (scln (format "return ~A" o)))))
+    ((o) (scln (format "return ~A" (no-scln o))))))
 
  (define (_bracket fun . args)
-   (scln (format "~A(~A)"
-                 fun
-                 (-string-join (-map -->string args) ", " 'infix))))
+   (scln (no-scln (format "~A(~A)"
+                          fun
+                          (-string-join (-map -->string args) ", " 'infix)))))
 
  (define (deftype name . types)
    (scln (format "typedef ~A ~A"
@@ -150,28 +150,28 @@
 
  (define if
    (-match-lambda*
-    ((test thenc) (format "if (~A) ~A" test thenc))
+    ((test thenc) (format "if (~A) ~A" (no-scln test) thenc))
     ((test thenc elsec)
-     (format "if (~A) ~A else ~A" test thenc elsec))))
+     (format "if (~A) ~A else ~A" (no-scln test) thenc elsec))))
 
  (define (if* test thenc elsec)
    (scln (format "~A ? ~A : ~A"
-                 test
+                 (no-scln test)
                  thenc
                  elsec)))
 
  (define (when test . body)
-   (format "if (~A) ~A" test (-apply begin body)))
+   (format "if (~A) ~A" (no-scln test) (-apply begin body)))
  (define (unless test . body)
-   (format "if (!(~A)) ~A" test (-apply begin body)))
+   (format "if (!(~A)) ~A" (no-scln test) (-apply begin body)))
 
  (define (do-while test . body)
-   (format "do ~A while (~A)\n" (-apply begin body) test))
+   (format "do ~A while (~A)\n" (-apply begin body) (no-scln test)))
 
  (define (while test . body)
-   (format "while (~A) ~A" test (-apply begin body)))
+   (format "while (~A) ~A" (no-scln test) (-apply begin body)))
  (define (until test . body)
-   (-apply while (not test) body))
+   (-apply while (not (no-scln test)) body))
 
  (define (label name stmt) (format "~A: ~A" name stmt))
  (define (goto lbl) (scln (format "goto ~A~A" lbl)))
@@ -187,7 +187,7 @@
                                   (symbol->string (-cadr e))
                                   (format "~A = ~A"
                                           (-car e)
-                                          (eval (-cadr e)))))
+                                          (eval (no-scln (-cadr e))))))
                            (-list 'enumerator* ...))
                      ",\n  "))))))
 
@@ -238,9 +238,9 @@
 
  (define (set l r) (format "~A = ~A~A" l r (scln)))
 
- (define (size-of-expr expr)         (format "sizeof ~A" expr))
+ (define (size-of-expr expr)         (format "sizeof ~A" (no-scln expr)))
  (define (size-of-type . type-words) (-apply format "sizeof(~A)" type-words))
- (define (cast expr type)            (format "(~A)~A" type expr))
+ (define (cast expr type)            (format "(~A)~A" type (no-scln expr)))
 
  ;;;; <The C Preprocessor macros>
  (define expand-prep-if
@@ -316,7 +316,7 @@
               (while test
                      (-apply -string-append iter-expr (-list body ...)))))))
 
- (define (get array element) (format "~A[~A]" array element))
+ (define (get array element) (format "~A[~A]" array (no-scln element)))
  (define (deref pointer)     (format "*~A" pointer))
  (define (ref pointer)       (format "&~A" pointer))
  (define (sub . os)          (-string-join (-map -->string os) "." 'infix))
