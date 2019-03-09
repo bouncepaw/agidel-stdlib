@@ -201,18 +201,20 @@
                            (-list '|| (defvar name decl* ...))))))))))
 
  (define (comparison-operator operator)
+   (define (form-one-pair pair)
+     (format "(~A~A~A)" (-car pair) operator (-cdr pair)))
+   (define (groups-of-two operands)
+     (-let loop ((acc '())
+                 (src operands))
+           (-if (-eq? 2 (-length src))
+                (-append acc (-list (-cons (-car src) (-cadr src))))
+                (loop
+                 (-append acc (-list (-cons (-car src) (-cadr src))))
+                 (-cdr src)))))
    (lambda operands
-     (-apply
-      and
-      (-map (lambda (lst)
-              (format "(~A~A~A)" (-car lst) operator (-cdr lst)))
-            (-let groups-of-two ((acc '())
-                                 (src operands))
-                  (-if (-eq? 2 (-length src))
-                       (-append acc `(,(-cons (-car src) (-cadr src))))
-                       (groups-of-two
-                        (-append acc `(,(-cons (-car src) (-cadr src))))
-                        (-cdr src))))))))
+     (-if (-eq? 2 (-length operands))
+          (form-one-pair (-cons (-car operands) (-cadr operands)))
+          (-apply and (-map form-one-pair (groups-of-two operands))))))
 
  (define eq?  (comparison-operator " == "))
  (define neq? (comparison-operator " != "))
