@@ -10,11 +10,20 @@
          (only chicken.syntax expand)
          (prefix srfi-13 -)
          format)
-
+ (define should-use-semicolon? #t)
+ (define-syntax no-scln
+   (syntax-rules (should-use-semicolon?)
+     ((_ expr)
+      (-let ((sclnbuf should-use-semicolon?)
+             (resbuf ""))
+            (set! should-use-semicolon? #f)
+            (set! resbuf expr)
+            (set! should-use-semicolon? sclnbuf)
+            resbuf))))
  (define scln
    (-match-lambda*
-    (() ";\n")
-    ((o) (format "~A;\n" o))))
+    (() (scln ""))
+    ((o) (format "~A~A" o (-if should-use-semicolon? ";\n" "")))))
  (define (eval-if-list expr)
    (-->string (-if (-symbol? expr) expr (-eval expr))))
 
